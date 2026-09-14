@@ -1,6 +1,6 @@
 use crate::attack::HurtBoxBundle;
 use crate::movement::*;
-use avian2d::dynamics::rigid_body::{Friction, LockedAxes, RigidBody};
+use avian2d::dynamics::rigid_body::{LockedAxes, RigidBody};
 use bevy::{prelude::*, sprite::Anchor};
 use bevy_ecs_ldtk::LdtkEntity;
 use bevy_ecs_ldtk::app::LdtkEntityAppExt;
@@ -17,7 +17,6 @@ pub struct BlockBundle {
     #[sprite_sheet("Stone_Node_Animation.png", 32, 32, 9, 1, 0, 0, 0)]
     sprite_sheet: Sprite,
     body: RigidBody,
-    friction: Friction,
     axes: LockedAxes,
     anchor: Anchor,
 }
@@ -28,8 +27,6 @@ impl Default for BlockBundle {
             block: Block,
             sprite_sheet: Sprite::default(),
             body: RigidBody::Dynamic,
-            friction: Friction::ZERO
-                .with_combine_rule(avian2d::dynamics::rigid_body::CoefficientCombine::Min),
             axes: LockedAxes::ROTATION_LOCKED,
             anchor: Anchor(Vec2::new(0., -0.25)),
         }
