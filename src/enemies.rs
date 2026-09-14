@@ -166,6 +166,7 @@ fn on_enemy_spawned(
                 GameLayers::Enemies,
                 [
                     GameLayers::Environment,
+                    GameLayers::Props,
                     GameLayers::Enemies,
                     GameLayers::Player,
                 ],
