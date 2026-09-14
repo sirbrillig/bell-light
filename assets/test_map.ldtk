@@ -1485,7 +1485,7 @@
 					"entityInstances": [
 						{
 							"__identifier": "Player",
-							"__grid": [5,49],
+							"__grid": [5,52],
 							"__pivot": [0.5,0.5],
 							"__tags": [],
 							"__tile": { "tilesetUid": 12, "x": 0, "y": 240, "w": 16, "h": 16 },
@@ -1494,14 +1494,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 4,
-							"px": [88,792],
+							"px": [88,840],
 							"fieldInstances": [],
 							"__worldX": -56,
-							"__worldY": 248
+							"__worldY": 296
 						},
 						{
 							"__identifier": "Orc",
-							"__grid": [26,51],
+							"__grid": [26,52],
 							"__pivot": [0.5,0.5],
 							"__tags": [],
 							"__tile": { "tilesetUid": 12, "x": 208, "y": 240, "w": 16, "h": 16 },
@@ -1510,14 +1510,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 11,
-							"px": [424,824],
+							"px": [424,840],
 							"fieldInstances": [],
 							"__worldX": 280,
-							"__worldY": 280
+							"__worldY": 296
 						},
 						{
 							"__identifier": "Block",
-							"__grid": [20,50],
+							"__grid": [20,51],
 							"__pivot": [0.5,0.5],
 							"__tags": [],
 							"__tile": null,
@@ -1526,14 +1526,14 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 63,
-							"px": [328,808],
+							"px": [328,824],
 							"fieldInstances": [],
 							"__worldX": 184,
-							"__worldY": 264
+							"__worldY": 280
 						},
 						{
 							"__identifier": "Block",
-							"__grid": [18,51],
+							"__grid": [17,52],
 							"__pivot": [0.5,0.5],
 							"__tags": [],
 							"__tile": null,
@@ -1542,10 +1542,10 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 63,
-							"px": [296,824],
+							"px": [280,840],
 							"fieldInstances": [],
-							"__worldX": 152,
-							"__worldY": 280
+							"__worldX": 136,
+							"__worldY": 296
 						}
 					]
 				},

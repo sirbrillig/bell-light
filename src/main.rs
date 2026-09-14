@@ -15,10 +15,12 @@ use avian2d::{
     PhysicsPlugins,
     debug_render::{ContactGizmoScale, PhysicsDebugPlugin, PhysicsGizmos},
     dynamics::integrator::Gravity,
+    schedule::Physics,
+    schedule::PhysicsTime,
 };
 use bevy::prelude::*;
 use bevy_behave::prelude::BehavePlugin;
-use bevy_ecs_ldtk::{LdtkPlugin, LdtkWorldBundle, LevelSelection};
+use bevy_ecs_ldtk::{LdtkPlugin, LdtkWorldBundle, LevelEvent, LevelSelection};
 use debug::DebugPlugin;
 use enemies::EnemyPlugin;
 use movement::MovementPlugin;
@@ -42,6 +44,7 @@ pub struct GamePlugin;
 impl Plugin for GamePlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Startup, (setup_world, setup_camera));
+        app.add_systems(Update, engage_physics);
         app.add_systems(
             PostUpdate,
             follow_camera.before(TransformSystems::Propagate),
@@ -133,11 +136,27 @@ fn follow_camera(
     }
 }
 
-fn setup_world(mut commands: Commands, asset_server: Res<AssetServer>) {
+fn setup_world(
+    mut commands: Commands,
+    asset_server: Res<AssetServer>,
+    mut avian_time: ResMut<Time<Physics>>,
+) {
     commands.spawn(LdtkWorldBundle {
         ldtk_handle: asset_server.load("test_map.ldtk").into(),
         ..default()
     });
+    // Pause gravity while we build the level.
+    avian_time.pause();
+}
+
+// Start physics (eg: gravity) when the level has been created by ldtk so that entities don't drop
+// before the ground exists to catch them.
+fn engage_physics(mut avian_time: ResMut<Time<Physics>>, mut messages: MessageReader<LevelEvent>) {
+    for message in messages.read() {
+        if let LevelEvent::Transformed(_) = message {
+            avian_time.unpause();
+        }
+    }
 }
 
 fn main() {

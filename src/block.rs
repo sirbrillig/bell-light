@@ -48,8 +48,7 @@ impl Plugin for BlockPlugin {
 fn on_spawned(event: On<Add, Block>, mut commands: Commands) {
     commands.entity(event.entity).with_children(|parent| {
         parent.spawn((
-            // @todo let these blocks be spawned where they are positioned instead of above the
-            // ground
+            Transform::from_xyz(0., 0.05, 0.),
             EnvColliderBundle::new(
                 GameLayers::Props,
                 [
