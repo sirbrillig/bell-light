@@ -127,7 +127,7 @@ fn on_player_spawned(
         parent.spawn((
             EnvColliderBundle::new(
                 GameLayers::Player,
-                GameLayers::Environment,
+                [GameLayers::Environment, GameLayers::Props],
                 PLAYER_WIDTH,
                 // Note: this must not be the same height as a tile or it will cause strange
                 // ghost collisions.

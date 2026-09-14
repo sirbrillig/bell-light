@@ -1,5 +1,5 @@
 use crate::GameSet;
-use avian2d::collision::collider::Collider;
+use avian2d::collision::collider::{Collider, LayerMask};
 use avian2d::{
     collision::collider::CollisionLayers, dynamics::rigid_body::LinearVelocity,
     prelude::PhysicsLayer, spatial_query::ShapeHits,
@@ -37,10 +37,15 @@ pub struct EnvColliderBundle {
 }
 
 impl EnvColliderBundle {
-    pub fn new(layer: GameLayers, other_layer: GameLayers, width: f32, height: f32) -> Self {
+    pub fn new(
+        layer: GameLayers,
+        other_layers: impl Into<LayerMask>,
+        width: f32,
+        height: f32,
+    ) -> Self {
         Self {
             env_collider: EnvCollider,
-            layers: CollisionLayers::new(layer, [other_layer]),
+            layers: CollisionLayers::new(layer, other_layers),
             collider: Collider::rectangle(width, height),
         }
     }
@@ -50,6 +55,7 @@ impl EnvColliderBundle {
 pub enum GameLayers {
     #[default]
     Environment,
+    Props,
     Player,
     PlayerHurtBox,
     Enemies,

@@ -2,6 +2,7 @@
 mod ai;
 mod animation;
 mod attack;
+mod block;
 mod debug;
 mod enemies;
 mod movement;
@@ -25,7 +26,7 @@ use player::PlayerPlugin;
 use powers::powers_plugin;
 use wall::WallPlugin;
 
-use crate::player::Player;
+use crate::{block::BlockPlugin, player::Player};
 
 #[derive(SystemSet, Debug, Hash, Eq, PartialEq, Clone)]
 pub enum GameSet {
@@ -51,6 +52,7 @@ impl Plugin for GamePlugin {
             MovementPlugin,
             AnimationPlugin,
             PlayerPlugin,
+            BlockPlugin,
             EnemyPlugin,
             WallPlugin,
             PhysicsPlugins::default().with_length_unit(50.0),

@@ -5,7 +5,7 @@ use crate::player::Player;
 use crate::{ai::tasks::move_toward_entity::ChaseTarget, animation::AnimationKey};
 use avian2d::spatial_query::SpatialQueryFilter;
 use avian2d::{
-    collision::collider::{Collider, CollisionLayers},
+    collision::collider::Collider,
     dynamics::rigid_body::{Friction, LockedAxes, RigidBody},
     spatial_query::ShapeCaster,
 };
@@ -40,9 +40,7 @@ pub struct EnemyCoreBundle {
     animation_key: AnimationKey,
     body: RigidBody,
     friction: Friction,
-    // @todo use EnvCollider child like Player
-    layers: CollisionLayers,
-    collider: Collider,
+    sprite_height: EnemySpriteHeight,
     speed: MovementSpeed,
     intended_x_vel: IntendedXVelocity,
     ground_detection: GroundDetection,
@@ -52,6 +50,9 @@ pub struct EnemyCoreBundle {
     animation: SpriteAnimation,
     facing: FacingDirection,
 }
+
+#[derive(Component, Default, Clone, Copy)]
+struct EnemySpriteHeight(f32);
 
 pub struct EnemySettings {
     sprite_height: f32,
@@ -80,7 +81,6 @@ impl Default for EnemySettings {
 impl EnemyCoreBundle {
     pub fn with_settings(settings: EnemySettings) -> Self {
         Self {
-            collider: Collider::rectangle(16., settings.sprite_height),
             speed: MovementSpeed(settings.speed),
             ground_detector: ShapeCaster::with_query_filter(
                 ShapeCaster::new(
@@ -102,6 +102,7 @@ impl EnemyCoreBundle {
                 frames: settings.animation_default_frames,
                 timer: Timer::from_seconds(0.1, TimerMode::Repeating),
             },
+            sprite_height: EnemySpriteHeight(settings.sprite_height),
             ..EnemyCoreBundle::default()
         }
     }
@@ -116,8 +117,6 @@ impl Default for EnemyCoreBundle {
             body: RigidBody::Dynamic,
             friction: Friction::ZERO
                 .with_combine_rule(avian2d::dynamics::rigid_body::CoefficientCombine::Min),
-            layers: CollisionLayers::new(GameLayers::Enemies, [GameLayers::Environment]),
-            collider: Collider::rectangle(16., ENEMY_HEIGHT),
             speed: MovementSpeed(25.0),
             intended_x_vel: IntendedXVelocity(0.0),
             ground_detection: GroundDetection,
@@ -140,6 +139,7 @@ impl Default for EnemyCoreBundle {
                 timer: Timer::from_seconds(0.1, TimerMode::Repeating),
             },
             facing: FacingDirection::Right,
+            sprite_height: EnemySpriteHeight::default(),
         }
     }
 }
@@ -157,8 +157,23 @@ impl Plugin for EnemyPlugin {
 fn on_enemy_spawned(
     event: On<Add, Enemy>,
     hurters: Query<&HurtsWhenTouched>,
+    heights: Query<&EnemySpriteHeight>,
     mut commands: Commands,
 ) {
+    if let Ok(height) = heights.get(event.entity) {
+        commands.entity(event.entity).with_children(|parent| {
+            parent.spawn((EnvColliderBundle::new(
+                GameLayers::Enemies,
+                [
+                    GameLayers::Environment,
+                    GameLayers::Enemies,
+                    GameLayers::Player,
+                ],
+                15.5,
+                height.0,
+            ),));
+        });
+    }
     if let Ok(hurts) = hurters.get(event.entity) {
         // Add hit box in a child (which we cannot do during init because ldtk plugin does not support it)
         commands.entity(event.entity).with_children(|parent| {
