@@ -27,8 +27,6 @@ pub struct Orc;
 #[derive(Bundle, LdtkEntity)]
 struct OrcBundle {
     orc: Orc,
-    #[sprite_sheet("Orc-Idle.png", 100, 100, 6, 1, 0, 0, 0)]
-    sprite_sheet: Sprite,
     core: EnemyCoreBundle,
     detection_distance: DetectionDistance,
     hurts: HurtsWhenTouched,
@@ -38,7 +36,6 @@ impl Default for OrcBundle {
     fn default() -> Self {
         Self {
             orc: Orc,
-            sprite_sheet: Sprite::default(),
             detection_distance: DetectionDistance(CHASE_RANGE),
             core: EnemyCoreBundle::with_settings(EnemySettings {
                 sprite_height: ENEMY_HEIGHT,

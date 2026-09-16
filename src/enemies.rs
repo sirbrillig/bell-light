@@ -1,15 +1,15 @@
-use crate::animation::SpriteAnimation;
+use crate::ai::tasks::move_toward_entity::ChaseTarget;
+use crate::animation::AnimatedSpriteBundle;
 use crate::attack::HitBoxBundle;
 use crate::movement::*;
 use crate::player::Player;
-use crate::{ai::tasks::move_toward_entity::ChaseTarget, animation::AnimationKey};
 use avian2d::spatial_query::SpatialQueryFilter;
 use avian2d::{
     collision::collider::Collider,
     dynamics::rigid_body::{Friction, LockedAxes, RigidBody},
     spatial_query::ShapeCaster,
 };
-use bevy::{prelude::*, sprite::Anchor};
+use bevy::prelude::*;
 use bevy_ecs_ldtk::LdtkEntity;
 
 pub mod orc;
@@ -37,7 +37,6 @@ pub struct HurtsWhenTouched {
 pub struct EnemyCoreBundle {
     enemy: Enemy,
     state: MovementState,
-    animation_key: AnimationKey,
     body: RigidBody,
     friction: Friction,
     sprite_height: EnemySpriteHeight,
@@ -46,8 +45,7 @@ pub struct EnemyCoreBundle {
     ground_detection: GroundDetection,
     ground_detector: ShapeCaster,
     axes: LockedAxes,
-    anchor: Anchor,
-    animation: SpriteAnimation,
+    animation: AnimatedSpriteBundle,
     facing: FacingDirection,
 }
 
@@ -96,12 +94,10 @@ impl EnemyCoreBundle {
                 SpatialQueryFilter::from_mask(GameLayers::Environment),
             )
             .with_max_distance(settings.ground_detector_range),
-            // Anchor is down a bit because sprite is not vertically centered
-            anchor: Anchor(Vec2::new(0.0, settings.sprite_height_offset)),
-            animation: SpriteAnimation {
-                frames: settings.animation_default_frames,
-                timer: Timer::from_seconds(0.1, TimerMode::Repeating),
-            },
+            animation: AnimatedSpriteBundle::new(
+                settings.sprite_height_offset,
+                settings.animation_default_frames,
+            ),
             sprite_height: EnemySpriteHeight(settings.sprite_height),
             ..EnemyCoreBundle::default()
         }
@@ -113,7 +109,6 @@ impl Default for EnemyCoreBundle {
         Self {
             enemy: Enemy,
             state: MovementState::Idle,
-            animation_key: AnimationKey::Idle,
             body: RigidBody::Dynamic,
             friction: Friction::ZERO
                 .with_combine_rule(avian2d::dynamics::rigid_body::CoefficientCombine::Min),
@@ -132,14 +127,9 @@ impl Default for EnemyCoreBundle {
             )
             .with_max_distance(ENEMY_FOOT_RANGE),
             axes: LockedAxes::ROTATION_LOCKED,
-            // Anchor is down a bit because sprite is not vertically centered
-            anchor: Anchor(Vec2::new(0.0, ENEMY_HEIGHT_ANCHOR_OFFSET)),
-            animation: SpriteAnimation {
-                frames: 6,
-                timer: Timer::from_seconds(0.1, TimerMode::Repeating),
-            },
             facing: FacingDirection::Right,
             sprite_height: EnemySpriteHeight::default(),
+            animation: AnimatedSpriteBundle::new(0., 1),
         }
     }
 }

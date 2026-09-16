@@ -4,8 +4,30 @@ use crate::{
     movement::{FacingDirection, Knockback, MovementState},
 };
 use avian2d::dynamics::rigid_body::LinearVelocity;
-use bevy::prelude::*;
+use bevy::{prelude::*, sprite::Anchor};
 use std::collections::HashMap;
+
+#[derive(Bundle)]
+pub struct AnimatedSpriteBundle {
+    sprite_sheet: Sprite,
+    animation: SpriteAnimation,
+    animation_key: AnimationKey,
+    anchor: Anchor,
+}
+
+impl AnimatedSpriteBundle {
+    pub fn new(anchor_offset_y: f32, animation_frames: usize) -> Self {
+        Self {
+            sprite_sheet: Sprite::default(),
+            animation_key: AnimationKey::Idle,
+            anchor: Anchor(Vec2::new(0.0, anchor_offset_y)),
+            animation: SpriteAnimation {
+                frames: animation_frames,
+                timer: Timer::from_seconds(0.1, TimerMode::Repeating),
+            },
+        }
+    }
+}
 
 #[derive(Component, Clone, Copy)]
 pub struct AnimationProgress(pub f32);

@@ -1,8 +1,8 @@
-use crate::animation::{AnimationKey, AnimationSet, CharacterAnimationClip};
+use crate::GameSet;
+use crate::animation::{AnimatedSpriteBundle, AnimationKey, AnimationSet, CharacterAnimationClip};
 use crate::attack::{HitBox, HurtBox, HurtBoxBundle};
 use crate::movement::*;
 use crate::powers::ActivateBell;
-use crate::{GameSet, animation::SpriteAnimation};
 use avian2d::collision::collider::CollidingEntities;
 use avian2d::collision::collider::collider_hierarchy::ColliderOf;
 use avian2d::dynamics::ccd::SpeculativeMargin;
@@ -12,7 +12,7 @@ use avian2d::{
     dynamics::rigid_body::{Friction, LinearVelocity, LockedAxes, RigidBody},
     spatial_query::ShapeCaster,
 };
-use bevy::{prelude::*, sprite::Anchor};
+use bevy::prelude::*;
 use bevy_ecs_ldtk::{LdtkEntity, Worldly, app::LdtkEntityAppExt};
 use std::collections::HashMap;
 
@@ -39,9 +39,6 @@ pub struct Player;
 struct PlayerBundle {
     player: Player,
     state: MovementState,
-    animation_key: AnimationKey,
-    #[sprite_sheet("Priest-Idle.png", 100, 100, 6, 1, 0, 0, 0)]
-    sprite_sheet: Sprite,
     #[worldly]
     worldly: Worldly,
     body: RigidBody,
@@ -52,9 +49,8 @@ struct PlayerBundle {
     coyote_time: CoyoteTimer,
     ground_detector: ShapeCaster,
     axes: LockedAxes,
-    anchor: Anchor,
-    animation: SpriteAnimation,
     facing: FacingDirection,
+    animation: AnimatedSpriteBundle,
 }
 
 impl Default for PlayerBundle {
@@ -62,8 +58,6 @@ impl Default for PlayerBundle {
         Self {
             player: Player,
             state: MovementState::Idle,
-            animation_key: AnimationKey::Idle,
-            sprite_sheet: Sprite::default(),
             worldly: Worldly::default(),
             body: RigidBody::Dynamic,
             friction: Friction::ZERO
@@ -86,12 +80,7 @@ impl Default for PlayerBundle {
             )
             .with_max_distance(PLAYER_FOOT_RANGE),
             axes: LockedAxes::ROTATION_LOCKED,
-            // Anchor is down a bit because sprite is not vertically centered
-            anchor: Anchor(Vec2::new(0.0, PLAYER_SPRITE_ANCHOR_OFFSET)),
-            animation: SpriteAnimation {
-                frames: 6,
-                timer: Timer::from_seconds(0.1, TimerMode::Repeating),
-            },
+            animation: AnimatedSpriteBundle::new(PLAYER_SPRITE_ANCHOR_OFFSET, 6),
             facing: FacingDirection::Right,
         }
     }
