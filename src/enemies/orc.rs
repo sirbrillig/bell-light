@@ -4,7 +4,7 @@ use crate::ai::tasks::is_facing_target::IsFacingTarget;
 use crate::ai::tasks::move_toward_entity::MoveTowardEntity;
 use crate::ai::tasks::target_in_range::TargetInRange;
 use crate::ai::tasks::wait_until_player_is_near::{DetectionDistance, WaitUntilPlayerIsNear};
-use crate::animation::{AnimationKey, AnimationSet, CharacterAnimationClip};
+use crate::animation::{AnimationClipSpec, AnimationKey, AnimationSet};
 use crate::attack::HurtBoxBundle;
 use crate::enemies::{EnemyCoreBundle, EnemyHurtBox, EnemySettings, HurtsWhenTouched};
 use crate::movement::GameLayers;
@@ -12,7 +12,6 @@ use bevy::prelude::*;
 use bevy_behave::behave;
 use bevy_behave::prelude::*;
 use bevy_ecs_ldtk::{LdtkEntity, app::LdtkEntityAppExt};
-use std::collections::HashMap;
 
 const ENEMY_HEIGHT: f32 = 16.0;
 const ENEMY_HEIGHT_ANCHOR_OFFSET: f32 = 0.01;
@@ -120,56 +119,39 @@ fn setup_enemy(
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut commands: Commands,
 ) {
-    let idle = CharacterAnimationClip {
-        image: asset_server.load("Orc-Idle.png"),
-        layout: layouts.add(TextureAtlasLayout::from_grid(
-            UVec2::splat(100),
-            6,
-            1,
-            None,
-            None,
-        )),
-        frames: 6,
-    };
-    let walk = CharacterAnimationClip {
-        image: asset_server.load("Orc-Walk.png"),
-        layout: layouts.add(TextureAtlasLayout::from_grid(
-            UVec2::splat(100),
-            8,
-            1,
-            None,
-            None,
-        )),
-        frames: 8,
-    };
-    let jump = CharacterAnimationClip {
-        image: asset_server.load("Orc-Walk.png"),
-        layout: layouts.add(TextureAtlasLayout::from_grid(
-            UVec2::splat(100),
-            8,
-            1,
-            None,
-            None,
-        )),
-        frames: 1,
-    };
-    let attack = CharacterAnimationClip {
-        image: asset_server.load("Orc-Attack01.png"),
-        layout: layouts.add(TextureAtlasLayout::from_grid(
-            UVec2::splat(100),
-            6,
-            1,
-            None,
-            None,
-        )),
-        frames: 6,
-    };
-    commands.insert_resource(OrcAnimations(AnimationSet {
-        animation_map: HashMap::from([
-            (AnimationKey::Idle, idle),
-            (AnimationKey::Walking, walk),
-            (AnimationKey::Jumping, jump),
-            (AnimationKey::Attacking, attack),
-        ]),
-    }));
+    let specs: &[AnimationClipSpec] = &[
+        AnimationClipSpec {
+            tile_size: 100,
+            key: AnimationKey::Idle,
+            path: "Orc-Idle.png",
+            columns: 6,
+            frames: 6,
+        },
+        AnimationClipSpec {
+            tile_size: 100,
+            key: AnimationKey::Walking,
+            path: "Orc-Walk.png",
+            columns: 8,
+            frames: 8,
+        },
+        AnimationClipSpec {
+            tile_size: 100,
+            key: AnimationKey::Jumping,
+            path: "Orc-Walk.png",
+            columns: 8,
+            frames: 1,
+        },
+        AnimationClipSpec {
+            tile_size: 100,
+            key: AnimationKey::Attacking,
+            path: "Orc-Attack01.png",
+            columns: 6,
+            frames: 6,
+        },
+    ];
+    commands.insert_resource(OrcAnimations(AnimationSet::from_specs(
+        specs,
+        &asset_server,
+        &mut layouts,
+    )));
 }

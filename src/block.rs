@@ -14,6 +14,7 @@ pub struct BlockHurtBox;
 #[derive(Bundle, LdtkEntity)]
 pub struct BlockBundle {
     block: Block,
+    // @todo add animation and destroy block when hit by power
     #[sprite_sheet("Stone_Node_Animation.png", 32, 32, 9, 1, 0, 0, 0)]
     sprite_sheet: Sprite,
     body: RigidBody,

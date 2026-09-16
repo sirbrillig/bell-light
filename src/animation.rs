@@ -41,6 +41,43 @@ impl AnimationSet {
     pub fn clip_for_key(&self, key: &AnimationKey) -> Option<&CharacterAnimationClip> {
         self.animation_map.get(key)
     }
+
+    pub fn from_specs(
+        specs: &[AnimationClipSpec],
+        asset_server: &AssetServer,
+        layouts: &mut Assets<TextureAtlasLayout>,
+    ) -> Self {
+        Self {
+            animation_map: specs
+                .iter()
+                .map(|spec| {
+                    // create (key, clip) tuple pairs
+                    (
+                        spec.key,
+                        CharacterAnimationClip {
+                            image: asset_server.load(spec.path),
+                            layout: layouts.add(TextureAtlasLayout::from_grid(
+                                UVec2::splat(spec.tile_size),
+                                spec.columns,
+                                1, // one row
+                                None,
+                                None,
+                            )),
+                            frames: spec.frames as usize,
+                        },
+                    )
+                })
+                .collect(),
+        }
+    }
+}
+
+pub struct AnimationClipSpec {
+    pub tile_size: u32,
+    pub key: AnimationKey,
+    pub path: &'static str,
+    pub columns: u32,
+    pub frames: u32,
 }
 
 #[derive(Component, Copy, Clone, PartialEq, Eq, Debug, Default, Hash)]
