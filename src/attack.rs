@@ -1,4 +1,4 @@
-use avian2d::collision::collider::{Collider, CollidingEntities, CollisionLayers};
+use avian2d::collision::collider::{Collider, CollidingEntities, CollisionLayers, LayerMask};
 use avian2d::collision::{collider::Sensor, collision_events::CollisionEventsEnabled};
 use bevy::prelude::*;
 use bevy::{ecs::component::Component, time::Timer};
@@ -27,10 +27,15 @@ pub struct HitBoxBundle {
 }
 
 impl HitBoxBundle {
-    pub fn new(layer: GameLayers, other_layer: GameLayers, width: f32, height: f32) -> Self {
+    pub fn new(
+        layer: GameLayers,
+        other_layers: impl Into<LayerMask>,
+        width: f32,
+        height: f32,
+    ) -> Self {
         Self {
             hitbox: HitBox,
-            layers: CollisionLayers::new(layer, [other_layer]),
+            layers: CollisionLayers::new(layer, other_layers),
             collider: Collider::rectangle(width, height),
         }
     }
@@ -45,10 +50,15 @@ pub struct HurtBoxBundle {
 }
 
 impl HurtBoxBundle {
-    pub fn new(layer: GameLayers, other_layer: GameLayers, width: f32, height: f32) -> Self {
+    pub fn new(
+        layer: GameLayers,
+        other_layers: impl Into<LayerMask>,
+        width: f32,
+        height: f32,
+    ) -> Self {
         Self {
             hurtbox: HurtBox,
-            layers: CollisionLayers::new(layer, [other_layer]),
+            layers: CollisionLayers::new(layer, other_layers),
             collider: Collider::rectangle(width, height),
             entities: CollidingEntities::default(),
         }

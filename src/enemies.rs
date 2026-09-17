@@ -97,6 +97,7 @@ impl EnemyCoreBundle {
             animation: AnimatedSpriteBundle::new(
                 settings.sprite_height_offset,
                 settings.animation_default_frames,
+                0.1,
             ),
             sprite_height: EnemySpriteHeight(settings.sprite_height),
             ..EnemyCoreBundle::default()
@@ -129,7 +130,7 @@ impl Default for EnemyCoreBundle {
             axes: LockedAxes::ROTATION_LOCKED,
             facing: FacingDirection::Right,
             sprite_height: EnemySpriteHeight::default(),
-            animation: AnimatedSpriteBundle::new(0., 1),
+            animation: AnimatedSpriteBundle::new(0., 1, 0.1),
         }
     }
 }

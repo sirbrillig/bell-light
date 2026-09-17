@@ -16,14 +16,14 @@ pub struct AnimatedSpriteBundle {
 }
 
 impl AnimatedSpriteBundle {
-    pub fn new(anchor_offset_y: f32, animation_frames: usize) -> Self {
+    pub fn new(anchor_offset_y: f32, animation_frames: usize, animation_secs: f32) -> Self {
         Self {
             sprite_sheet: Sprite::default(),
             animation_key: AnimationKey::Idle,
             anchor: Anchor(Vec2::new(0.0, anchor_offset_y)),
             animation: SpriteAnimation {
                 frames: animation_frames,
-                timer: Timer::from_seconds(0.1, TimerMode::Repeating),
+                timer: Timer::from_seconds(animation_secs, TimerMode::Repeating),
             },
         }
     }
@@ -88,6 +88,7 @@ pub enum AnimationKey {
     Jumping,
     Attacking,
     Repulsion,
+    Shatter,
 }
 
 #[derive(Component)]

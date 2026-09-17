@@ -79,7 +79,7 @@ impl Default for PlayerBundle {
             )
             .with_max_distance(PLAYER_FOOT_RANGE),
             axes: LockedAxes::ROTATION_LOCKED,
-            animation: AnimatedSpriteBundle::new(PLAYER_SPRITE_ANCHOR_OFFSET, 6),
+            animation: AnimatedSpriteBundle::new(PLAYER_SPRITE_ANCHOR_OFFSET, 6, 0.1),
             facing: FacingDirection::Right,
         }
     }
