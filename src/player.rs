@@ -1,5 +1,5 @@
 use crate::GameSet;
-use crate::animation::{AnimatedSpriteBundle, AnimationKey, AnimationSet, CharacterAnimationClip};
+use crate::animation::{AnimatedSpriteBundle, AnimationClipSpec, AnimationKey, AnimationSet};
 use crate::attack::{HitBox, HurtBox, HurtBoxBundle};
 use crate::movement::*;
 use crate::powers::ActivateBell;
@@ -14,7 +14,6 @@ use avian2d::{
 };
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{LdtkEntity, Worldly, app::LdtkEntityAppExt};
-use std::collections::HashMap;
 
 const PLAYER_JUMP_SPEED: f32 = 255.0;
 const PLAYER_JUMP_CUT_SPEED: f32 = 190.0;
@@ -311,44 +310,32 @@ fn setup_player(
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut commands: Commands,
 ) {
-    let idle = CharacterAnimationClip {
-        image: asset_server.load("Priest-Idle.png"),
-        layout: layouts.add(TextureAtlasLayout::from_grid(
-            UVec2::splat(100),
-            6,
-            1,
-            None,
-            None,
-        )),
-        frames: 6,
-    };
-    let walk = CharacterAnimationClip {
-        image: asset_server.load("Priest-Walk.png"),
-        layout: layouts.add(TextureAtlasLayout::from_grid(
-            UVec2::splat(100),
-            8,
-            1,
-            None,
-            None,
-        )),
-        frames: 8,
-    };
-    let jump = CharacterAnimationClip {
-        image: asset_server.load("Priest-Walk.png"),
-        layout: layouts.add(TextureAtlasLayout::from_grid(
-            UVec2::splat(100),
-            8,
-            1,
-            None,
-            None,
-        )),
-        frames: 1,
-    };
-    commands.insert_resource(PlayerAnimations(AnimationSet {
-        animation_map: HashMap::from([
-            (AnimationKey::Idle, idle),
-            (AnimationKey::Walking, walk),
-            (AnimationKey::Jumping, jump),
-        ]),
-    }));
+    let specs: &[AnimationClipSpec] = &[
+        AnimationClipSpec {
+            tile_size: 100,
+            key: AnimationKey::Idle,
+            path: "Priest-Idle.png",
+            columns: 6,
+            frames: 6,
+        },
+        AnimationClipSpec {
+            tile_size: 100,
+            key: AnimationKey::Walking,
+            path: "Priest-Walk.png",
+            columns: 8,
+            frames: 8,
+        },
+        AnimationClipSpec {
+            tile_size: 100,
+            key: AnimationKey::Jumping,
+            path: "Priest-Walk.png",
+            columns: 8,
+            frames: 1,
+        },
+    ];
+    commands.insert_resource(PlayerAnimations(AnimationSet::from_specs(
+        specs,
+        &asset_server,
+        &mut layouts,
+    )));
 }
