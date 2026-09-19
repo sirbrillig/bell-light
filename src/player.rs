@@ -267,7 +267,7 @@ fn move_player(
 ) {
     let (entity, mut vel, speed, mut coyote, on_ground) = player.into_inner();
 
-    if keyboard_input.just_pressed(KeyCode::KeyZ) {
+    if keyboard_input.just_pressed(KeyCode::Space) {
         if let Some(direction) = get_input_direction(&keyboard_input, on_ground) {
             commands
                 .entity(entity)
