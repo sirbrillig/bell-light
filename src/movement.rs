@@ -1,12 +1,10 @@
 use crate::GameSet;
-use avian2d::collision::collider::{Collider, LayerMask};
-use avian2d::{
-    collision::collider::CollisionLayers, dynamics::rigid_body::LinearVelocity,
-    prelude::PhysicsLayer, spatial_query::ShapeHits,
-};
+use avian2d::prelude::*;
 use bevy::prelude::*;
 
 pub struct MovementPlugin;
+
+const GROUND_DETECTION_RANGE: f32 = 2.0;
 
 impl Plugin for MovementPlugin {
     fn build(&self, app: &mut App) {
@@ -55,6 +53,7 @@ impl EnvColliderBundle {
 pub enum GameLayers {
     #[default]
     Environment,
+    Platforms,
     Props,
     Player,
     PlayerHurtBox,
@@ -66,6 +65,30 @@ pub enum GameLayers {
 
 #[derive(Component)]
 pub struct GroundDetection;
+
+#[derive(Bundle)]
+pub struct GroundDetectionBundle {
+    detection: GroundDetection,
+    ground_detector: ShapeCaster,
+}
+
+impl GroundDetectionBundle {
+    pub fn new(shape: Vec2, origin: Vec2) -> Self {
+        Self {
+            detection: GroundDetection,
+            ground_detector: ShapeCaster::with_query_filter(
+                ShapeCaster::new(
+                    Collider::rectangle(shape.x, shape.y),
+                    origin,
+                    0.0,
+                    Dir2::NEG_Y,
+                ),
+                SpatialQueryFilter::from_mask([GameLayers::Environment, GameLayers::Platforms]),
+            )
+            .with_max_distance(GROUND_DETECTION_RANGE),
+        }
+    }
+}
 
 #[derive(Component)]
 pub struct OnGround;

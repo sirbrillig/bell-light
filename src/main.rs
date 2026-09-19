@@ -6,6 +6,7 @@ mod block;
 mod debug;
 mod enemies;
 mod movement;
+mod platform;
 mod player;
 mod powers;
 mod wall;
@@ -21,14 +22,15 @@ use avian2d::{
 use bevy::prelude::*;
 use bevy_behave::prelude::BehavePlugin;
 use bevy_ecs_ldtk::{LdtkPlugin, LdtkWorldBundle, LevelEvent, LevelSelection};
+use block::BlockPlugin;
 use debug::DebugPlugin;
 use enemies::EnemyPlugin;
 use movement::MovementPlugin;
+use platform::PlatformPlugin;
+use player::Player;
 use player::PlayerPlugin;
 use powers::powers_plugin;
 use wall::WallPlugin;
-
-use crate::{block::BlockPlugin, player::Player};
 
 #[derive(SystemSet, Debug, Hash, Eq, PartialEq, Clone)]
 pub enum GameSet {
@@ -56,6 +58,7 @@ impl Plugin for GamePlugin {
             AnimationPlugin,
             PlayerPlugin,
             BlockPlugin,
+            PlatformPlugin,
             EnemyPlugin,
             WallPlugin,
             PhysicsPlugins::default().with_length_unit(50.0),

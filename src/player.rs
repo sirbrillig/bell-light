@@ -3,15 +3,7 @@ use crate::animation::{AnimatedSpriteBundle, AnimationClipSpec, AnimationKey, An
 use crate::attack::{HitBox, HurtBox, HurtBoxBundle};
 use crate::movement::*;
 use crate::powers::ActivateBell;
-use avian2d::collision::collider::CollidingEntities;
-use avian2d::collision::collider::collider_hierarchy::ColliderOf;
-use avian2d::dynamics::ccd::SpeculativeMargin;
-use avian2d::spatial_query::SpatialQueryFilter;
-use avian2d::{
-    collision::collider::Collider,
-    dynamics::rigid_body::{Friction, LinearVelocity, LockedAxes, RigidBody},
-    spatial_query::ShapeCaster,
-};
+use avian2d::prelude::*;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::{LdtkEntity, Worldly, app::LdtkEntityAppExt};
 
@@ -24,7 +16,6 @@ const PLAYER_ENV_COLLIDER_HEIGHT: f32 = 14.0;
 const PLAYER_SPRITE_ANCHOR_OFFSET: f32 = 0.05;
 const PLAYER_FOOT_HEIGHT: f32 = 1.5;
 const PLAYER_FOOT_ANCHOR: f32 = -(PLAYER_HEIGHT / 2.) + (PLAYER_FOOT_HEIGHT / 2.);
-const PLAYER_FOOT_RANGE: f32 = 2.0;
 const KNOCKBACK_SPEED_X: f32 = 290.0;
 const KNOCKBACK_SPEED_Y: f32 = 110.0;
 
@@ -44,9 +35,8 @@ struct PlayerBundle {
     friction: Friction,
     speed: MovementSpeed,
     // @todo add wall detection
-    ground_detection: GroundDetection,
+    ground_detection: GroundDetectionBundle,
     coyote_time: CoyoteTimer,
-    ground_detector: ShapeCaster,
     axes: LockedAxes,
     facing: FacingDirection,
     animation: AnimatedSpriteBundle,
@@ -62,22 +52,11 @@ impl Default for PlayerBundle {
             friction: Friction::ZERO
                 .with_combine_rule(avian2d::dynamics::rigid_body::CoefficientCombine::Min),
             speed: MovementSpeed(90.0),
-            ground_detection: GroundDetection,
+            ground_detection: GroundDetectionBundle::new(
+                Vec2::new(8., PLAYER_FOOT_HEIGHT),
+                Vec2::new(0., PLAYER_FOOT_ANCHOR),
+            ),
             coyote_time: CoyoteTimer::default(),
-            ground_detector: ShapeCaster::with_query_filter(
-                ShapeCaster::new(
-                    Collider::rectangle(8., PLAYER_FOOT_HEIGHT),
-                    // Put detector at the player's feet
-                    Vec2 {
-                        x: 0.0,
-                        y: PLAYER_FOOT_ANCHOR,
-                    },
-                    0.0,
-                    Dir2::NEG_Y,
-                ),
-                SpatialQueryFilter::from_mask(GameLayers::Environment),
-            )
-            .with_max_distance(PLAYER_FOOT_RANGE),
             axes: LockedAxes::ROTATION_LOCKED,
             animation: AnimatedSpriteBundle::new(PLAYER_SPRITE_ANCHOR_OFFSET, 6, 0.1),
             facing: FacingDirection::Right,
@@ -115,7 +94,11 @@ fn on_player_spawned(
         parent.spawn((
             EnvColliderBundle::new(
                 GameLayers::Player,
-                [GameLayers::Environment, GameLayers::Props],
+                [
+                    GameLayers::Environment,
+                    GameLayers::Props,
+                    GameLayers::Platforms,
+                ],
                 PLAYER_WIDTH,
                 // Note: this must not be the same height as a tile or it will cause strange
                 // ghost collisions.
