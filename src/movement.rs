@@ -83,7 +83,11 @@ impl GroundDetectionBundle {
                     0.0,
                     Dir2::NEG_Y,
                 ),
-                SpatialQueryFilter::from_mask([GameLayers::Environment, GameLayers::Platforms]),
+                SpatialQueryFilter::from_mask([
+                    GameLayers::Environment,
+                    GameLayers::Platforms,
+                    GameLayers::Props,
+                ]),
             )
             .with_max_distance(GROUND_DETECTION_RANGE),
         }
