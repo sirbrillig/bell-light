@@ -82,14 +82,16 @@ fn setup_powers(
     mut layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut commands: Commands,
 ) {
+    let sprite_size = 64;
+    let row_number = 5;
     let repulsion = CharacterAnimationClip {
         image: asset_server.load("explosions.png"),
         layout: layouts.add(TextureAtlasLayout::from_grid(
-            UVec2::splat(64),
+            UVec2::splat(sprite_size),
             12,
             1,
             None,
-            Some(UVec2::new(0, 64 * 5)),
+            Some(UVec2::new(0, sprite_size * row_number)),
         )),
         frames: 10,
     };
