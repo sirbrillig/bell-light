@@ -1,4 +1,7 @@
-use crate::movement::*;
+use crate::{
+    attack::{HurtBox, HurtBoxBundle},
+    movement::*,
+};
 use avian2d::prelude::*;
 use bevy::prelude::*;
 use bevy_ecs_ldtk::prelude::*;
@@ -9,6 +12,9 @@ const PLATFORM_SPEED: f32 = 30.0;
 #[derive(Component, Default)]
 pub struct Platform;
 
+#[derive(Component, Default)]
+pub struct PlatformHurtBox;
+
 #[derive(Default, PartialEq)]
 pub enum PlatformDirection {
     #[default]
@@ -18,8 +24,9 @@ pub enum PlatformDirection {
 
 #[derive(Component, Default)]
 pub struct PlatformPathState {
-    index: usize,
-    direction: PlatformDirection,
+    pub active: bool,
+    pub index: usize,
+    pub direction: PlatformDirection,
 }
 
 impl PlatformPathState {
@@ -49,6 +56,9 @@ pub struct PlatformPath {
     pub points: Vec<Vec2>,
 }
 
+#[derive(Component, Default)]
+pub struct BellActivate(pub bool);
+
 #[derive(Bundle, LdtkEntity)]
 pub struct PlatformBundle {
     platform: Platform,
@@ -58,6 +68,13 @@ pub struct PlatformBundle {
     #[with(create_path)]
     path: PlatformPathOffsets,
     state: PlatformPathState,
+    #[with(set_bell_activate)]
+    bell_activate: BellActivate,
+}
+
+fn set_bell_activate(ld_entity: &EntityInstance) -> BellActivate {
+    let val = ld_entity.get_bool_field("BellActivate").unwrap_or(&false);
+    BellActivate(*val)
 }
 
 fn create_path(ld_entity: &EntityInstance) -> PlatformPathOffsets {
@@ -97,6 +114,7 @@ impl Default for PlatformBundle {
             axes: LockedAxes::ROTATION_LOCKED,
             path: PlatformPathOffsets::default(),
             state: PlatformPathState::default(),
+            bell_activate: BellActivate(false),
         }
     }
 }
@@ -105,10 +123,31 @@ pub struct PlatformPlugin;
 
 impl Plugin for PlatformPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, prepare_paths);
+        app.add_systems(
+            Update,
+            (prepare_paths, respond_to_bell, activate_paths).chain(),
+        );
         app.add_systems(FixedUpdate, move_platform);
         app.add_observer(on_spawned);
         app.register_ldtk_entity::<PlatformBundle>("Platform");
+    }
+}
+
+fn respond_to_bell(
+    hits: Query<(&CollidingEntities, &ColliderOf), (With<HurtBox>, With<PlatformHurtBox>)>,
+    mut platforms: Query<(&BellActivate, &mut PlatformPathState)>,
+) {
+    for (hurtbox, owner) in hits.iter() {
+        if hurtbox.is_empty() {
+            continue;
+        }
+        let platform_entity = owner.body;
+        let Ok((bell_activate, mut state)) = platforms.get_mut(platform_entity) else {
+            continue;
+        };
+        if bell_activate.0 {
+            state.active = true;
+        }
     }
 }
 
@@ -126,7 +165,28 @@ fn prepare_paths(
     }
 }
 
+fn activate_paths(mut query: Query<(&mut PlatformPathState, &BellActivate)>) {
+    for (mut state, bell_activate) in query.iter_mut() {
+        if !state.active && !bell_activate.0 {
+            state.active = true;
+        }
+    }
+}
+
 fn on_spawned(event: On<Add, Platform>, mut commands: Commands) {
+    commands.entity(event.entity).with_children(|parent| {
+        parent.spawn((
+            PlatformHurtBox,
+            Transform::from_xyz(0., 0.05, 0.),
+            HurtBoxBundle::new(
+                GameLayers::Platforms,
+                GameLayers::PlayerPowerBox,
+                PLATFORM_SIZE.x,
+                PLATFORM_SIZE.y,
+            ),
+        ));
+    });
+
     commands.entity(event.entity).with_children(|parent| {
         parent.spawn((
             Transform::from_xyz(0., 0.05, 0.),
@@ -162,6 +222,9 @@ fn move_platform(
     time: Res<Time>,
 ) {
     for (path, transform, mut state, mut vel) in query.iter_mut() {
+        if !state.active {
+            continue;
+        }
         let Some(point) = path.points.get(state.index) else {
             println!(
                 "no next point for index {} with points {:?}",

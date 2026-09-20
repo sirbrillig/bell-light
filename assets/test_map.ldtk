@@ -11,7 +11,7 @@
 	"iid": "9d6ad7e0-96d0-11f1-b2aa-598e4c6826cd",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 67,
+	"nextUid": 68,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -1056,6 +1056,43 @@
 					"allowedRefsEntityUid": null,
 					"allowedRefTags": [],
 					"tilesetUid": null
+				},
+				{
+					"identifier": "BellActivate",
+					"doc": null,
+					"__type": "Bool",
+					"uid": 67,
+					"type": "F_Bool",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "NameAndValue",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
 				}
 			]
 		}
@@ -1632,10 +1669,16 @@
 							"height": 16,
 							"defUid": 65,
 							"px": [232,840],
-							"fieldInstances": [{ "__identifier": "Path", "__type": "Array<Point>", "__value": [{ "cx": 14, "cy": 48 }], "__tile": null, "defUid": 66, "realEditorValues": [{
-								"id": "V_String",
-								"params": ["14,48"]
-							}] }],
+							"fieldInstances": [
+								{ "__identifier": "Path", "__type": "Array<Point>", "__value": [{ "cx": 14, "cy": 48 }], "__tile": null, "defUid": 66, "realEditorValues": [{
+									"id": "V_String",
+									"params": ["14,48"]
+								}] },
+								{ "__identifier": "BellActivate", "__type": "Bool", "__value": true, "__tile": null, "defUid": 67, "realEditorValues": [{
+									"id": "V_Bool",
+									"params": [ true ]
+								}] }
+							],
 							"__worldX": 88,
 							"__worldY": 296
 						}

@@ -118,7 +118,11 @@ fn activate_bell(
             clip,
             HitBoxBundle::new(
                 GameLayers::PlayerPowerBox,
-                [GameLayers::EnemyHurtBox, GameLayers::Props],
+                [
+                    GameLayers::EnemyHurtBox,
+                    GameLayers::Props,
+                    GameLayers::Platforms,
+                ],
                 45.,
                 45.,
             ),
