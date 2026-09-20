@@ -11,7 +11,7 @@
 	"iid": "9d6ad7e0-96d0-11f1-b2aa-598e4c6826cd",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 66,
+	"nextUid": 67,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -1019,7 +1019,45 @@
 			"limitBehavior": "MoveLastOne",
 			"pivotX": 0.5,
 			"pivotY": 0.5,
-			"fieldDefs": []
+			"fieldDefs": [
+				{
+					"identifier": "Path",
+					"doc": null,
+					"__type": "Array<Point>",
+					"uid": 66,
+					"type": "F_Point",
+					"isArray": true,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "PointPath",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": "#F77622",
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": null,
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
+				}
+			]
 		}
 	], "tilesets": [
 		{
@@ -1584,22 +1622,6 @@
 						},
 						{
 							"__identifier": "Platform",
-							"__grid": [60,36],
-							"__pivot": [0.5,0.5],
-							"__tags": [],
-							"__tile": null,
-							"__smartColor": "#D77643",
-							"iid": "5a1096a0-96d0-11f1-975c-03f225a2fc49",
-							"width": 16,
-							"height": 16,
-							"defUid": 65,
-							"px": [968,584],
-							"fieldInstances": [],
-							"__worldX": 824,
-							"__worldY": 40
-						},
-						{
-							"__identifier": "Platform",
 							"__grid": [14,52],
 							"__pivot": [0.5,0.5],
 							"__tags": [],
@@ -1610,7 +1632,10 @@
 							"height": 16,
 							"defUid": 65,
 							"px": [232,840],
-							"fieldInstances": [],
+							"fieldInstances": [{ "__identifier": "Path", "__type": "Array<Point>", "__value": [{ "cx": 14, "cy": 48 }], "__tile": null, "defUid": 66, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["14,48"]
+							}] }],
 							"__worldX": 88,
 							"__worldY": 296
 						}
