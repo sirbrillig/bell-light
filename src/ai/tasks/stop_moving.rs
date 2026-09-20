@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_behave::prelude::*;
 
-use crate::{ai::AiSet, movement::IntendedXVelocity};
+use crate::{ai::AiSet, movement::IntendedVelocity};
 
 #[derive(Component, Clone)]
 pub struct StopMoving;
@@ -14,7 +14,7 @@ fn stop_moving(query: Query<&BehaveCtx, With<StopMoving>>, mut commands: Command
     for ctx in query.iter() {
         commands
             .entity(ctx.target_entity())
-            .insert(IntendedXVelocity(0.0));
+            .insert(IntendedVelocity::x(0.0));
         commands.trigger(ctx.success());
     }
 }

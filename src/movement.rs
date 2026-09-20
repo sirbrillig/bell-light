@@ -101,7 +101,13 @@ pub struct OnGround;
 pub struct MovementSpeed(pub f32);
 
 #[derive(Component, Copy, Clone)]
-pub struct IntendedXVelocity(pub f32);
+pub struct IntendedVelocity(pub Vec2);
+
+impl IntendedVelocity {
+    pub fn x(x_vel: f32) -> Self {
+        Self(Vec2::new(x_vel, 0.))
+    }
+}
 
 #[derive(Component)]
 pub struct Knockback {
@@ -237,8 +243,8 @@ fn coyote_timer(
     }
 }
 
-fn set_intended_velocity(mut query: Query<(&mut LinearVelocity, &IntendedXVelocity)>) {
+fn set_intended_velocity(mut query: Query<(&mut LinearVelocity, &IntendedVelocity)>) {
     for (mut vel, intent) in query.iter_mut() {
-        vel.x = intent.0;
+        vel.0 = intent.0;
     }
 }

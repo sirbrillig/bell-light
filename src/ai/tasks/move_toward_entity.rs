@@ -4,7 +4,7 @@ use bevy_behave::prelude::*;
 
 use crate::{
     ai::{AiSet, tasks::TaskReported},
-    movement::{FacingDirection, IntendedXVelocity, MovementSpeed},
+    movement::{FacingDirection, IntendedVelocity, MovementSpeed},
 };
 
 #[derive(Component, Clone)]
@@ -44,21 +44,21 @@ fn move_toward_entity(
             // Stop when we get close
             commands
                 .entity(ctx.target_entity())
-                .insert(IntendedXVelocity(0.0));
+                .insert(IntendedVelocity::x(0.0));
             commands.trigger(ctx.success());
             commands.entity(task).insert(TaskReported);
         } else if distance_to_player >= distance.far_distance {
             // Stop if we get too far
             commands
                 .entity(ctx.target_entity())
-                .insert(IntendedXVelocity(0.0));
+                .insert(IntendedVelocity::x(0.0));
             commands.trigger(ctx.success());
             commands.entity(task).insert(TaskReported);
         } else {
             // Otherwise move toward target
             commands
                 .entity(ctx.target_entity())
-                .insert(IntendedXVelocity(match direction {
+                .insert(IntendedVelocity::x(match direction {
                     FacingDirection::Left => -speed.0,
                     FacingDirection::Right => speed.0,
                 }));
