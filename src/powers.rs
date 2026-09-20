@@ -85,7 +85,7 @@ fn setup_powers(
     let sprite_size = 64;
     let row_number = 5;
     let repulsion = CharacterAnimationClip {
-        image: asset_server.load("explosions.png"),
+        image: asset_server.load("sprites/explosions.png"),
         layout: layouts.add(TextureAtlasLayout::from_grid(
             UVec2::splat(sprite_size),
             12,

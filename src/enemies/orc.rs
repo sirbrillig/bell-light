@@ -25,7 +25,7 @@ pub struct Orc;
 
 #[derive(Bundle, LdtkEntity)]
 struct OrcBundle {
-    orc: Orc,
+    name: Orc,
     core: EnemyCoreBundle,
     detection_distance: DetectionDistance,
     hurts: HurtsWhenTouched,
@@ -34,7 +34,7 @@ struct OrcBundle {
 impl Default for OrcBundle {
     fn default() -> Self {
         Self {
-            orc: Orc,
+            name: Orc,
             detection_distance: DetectionDistance(CHASE_RANGE),
             core: EnemyCoreBundle::with_settings(EnemySettings {
                 sprite_height: ENEMY_HEIGHT,
@@ -123,28 +123,28 @@ fn setup_enemy(
         AnimationClipSpec {
             tile_size: 100,
             key: AnimationKey::Idle,
-            path: "Orc-Idle.png",
+            path: "sprites/Orc-Idle.png",
             columns: 6,
             frames: 6,
         },
         AnimationClipSpec {
             tile_size: 100,
             key: AnimationKey::Walking,
-            path: "Orc-Walk.png",
+            path: "sprites/Orc-Walk.png",
             columns: 8,
             frames: 8,
         },
         AnimationClipSpec {
             tile_size: 100,
             key: AnimationKey::Jumping,
-            path: "Orc-Walk.png",
+            path: "sprites/Orc-Walk.png",
             columns: 8,
             frames: 1,
         },
         AnimationClipSpec {
             tile_size: 100,
             key: AnimationKey::Attacking,
-            path: "Orc-Attack01.png",
+            path: "sprites/Orc-Attack01.png",
             columns: 6,
             frames: 6,
         },

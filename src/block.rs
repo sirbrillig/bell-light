@@ -95,7 +95,7 @@ fn setup_block(
     mut commands: Commands,
 ) {
     let idle = CharacterAnimationClip {
-        image: asset_server.load("Stone_Node_Animation.png"),
+        image: asset_server.load("sprites/Stone_Node_Animation.png"),
         layout: layouts.add(TextureAtlasLayout::from_grid(
             UVec2::splat(32),
             9,
@@ -106,7 +106,7 @@ fn setup_block(
         frames: 1,
     };
     let clip = CharacterAnimationClip {
-        image: asset_server.load("Stone_Node_Animation.png"),
+        image: asset_server.load("sprites/Stone_Node_Animation.png"),
         layout: layouts.add(TextureAtlasLayout::from_grid(
             UVec2::splat(32),
             9,
