@@ -1,6 +1,7 @@
 use bevy::{app::App, ecs::component::Component};
 
 pub mod attack;
+pub mod charge_straight;
 pub mod face_target;
 pub mod is_facing_target;
 pub mod move_toward_entity;
@@ -21,5 +22,6 @@ pub fn plugin(app: &mut App) {
         attack::plugin,
         is_facing_target::plugin,
         face_target::plugin,
+        charge_straight::plugin,
     ));
 }

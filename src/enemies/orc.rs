@@ -8,6 +8,7 @@ use crate::animation::{AnimationClipSpec, AnimationKey, AnimationSet};
 use crate::attack::HurtBoxBundle;
 use crate::enemies::{EnemyCoreBundle, EnemyHurtBox, EnemySettings, HurtsWhenTouched};
 use crate::movement::GameLayers;
+use avian2d::dynamics::rigid_body::RigidBody;
 use bevy::prelude::*;
 use bevy_behave::behave;
 use bevy_behave::prelude::*;
@@ -37,6 +38,7 @@ impl Default for OrcBundle {
             name: Orc,
             detection_distance: DetectionDistance(CHASE_RANGE),
             core: EnemyCoreBundle::with_settings(EnemySettings {
+                body_type: RigidBody::Dynamic,
                 sprite_height: ENEMY_HEIGHT,
                 sprite_height_offset: ENEMY_HEIGHT_ANCHOR_OFFSET,
                 speed: 25.0,

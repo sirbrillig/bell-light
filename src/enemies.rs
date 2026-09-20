@@ -13,6 +13,7 @@ use bevy::prelude::*;
 use bevy_ecs_ldtk::LdtkEntity;
 
 pub mod orc;
+pub mod stabber;
 
 // These are defaults, they will probably need to be overridden
 const ENEMY_HEIGHT: f32 = 16.0;
@@ -53,13 +54,14 @@ pub struct EnemyCoreBundle {
 struct EnemySpriteHeight(f32);
 
 pub struct EnemySettings {
-    sprite_height: f32,
-    sprite_height_offset: f32,
-    speed: f32,
-    ground_detector_height: f32,
-    ground_detector_anchor: f32,
-    ground_detector_range: f32,
-    animation_default_frames: usize,
+    pub sprite_height: f32,
+    pub sprite_height_offset: f32,
+    pub speed: f32,
+    pub ground_detector_height: f32,
+    pub ground_detector_anchor: f32,
+    pub ground_detector_range: f32,
+    pub animation_default_frames: usize,
+    pub body_type: RigidBody,
 }
 
 impl Default for EnemySettings {
@@ -72,6 +74,7 @@ impl Default for EnemySettings {
             ground_detector_anchor: ENEMY_FOOT_ANCHOR,
             ground_detector_range: ENEMY_FOOT_RANGE,
             animation_default_frames: 6,
+            body_type: RigidBody::Dynamic,
         }
     }
 }
@@ -80,6 +83,7 @@ impl EnemyCoreBundle {
     pub fn with_settings(settings: EnemySettings) -> Self {
         Self {
             speed: MovementSpeed(settings.speed),
+            body: settings.body_type,
             ground_detector: ShapeCaster::with_query_filter(
                 ShapeCaster::new(
                     Collider::rectangle(14., settings.ground_detector_height),
@@ -140,7 +144,7 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
         app.add_systems(Update, set_chase_target);
-        app.add_plugins(orc::plugin);
+        app.add_plugins((orc::plugin, stabber::plugin));
         app.add_observer(on_enemy_spawned);
     }
 }

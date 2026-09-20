@@ -127,6 +127,16 @@ pub enum MovementState {
 }
 
 #[derive(Component, Copy, Clone, PartialEq, Eq, Debug, Default)]
+#[allow(dead_code)]
+pub enum OrthagonalDirection {
+    #[default]
+    Right,
+    Down,
+    Left,
+    Up,
+}
+
+#[derive(Component, Copy, Clone, PartialEq, Eq, Debug, Default)]
 pub enum FacingDirection {
     #[default]
     Right,
