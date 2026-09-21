@@ -1,4 +1,4 @@
-use crate::ai::tasks::charge_straight::ChargeStraight;
+use crate::ai::tasks::charge_straight::{ChargeDirection, ChargeStraight};
 use crate::ai::tasks::wait_until_player_is_near::{DetectionDistance, WaitUntilPlayerIsNear};
 use crate::animation::{AnimationClipSpec, AnimationKey, AnimationSet};
 use crate::attack::HurtBoxBundle;
@@ -7,9 +7,12 @@ use crate::movement::{GameLayers, OrthagonalDirection};
 use avian2d::collision::collider::collider_hierarchy::ColliderOf;
 use avian2d::collision::collider::{Collider, CollidingEntities, CollisionLayers, LayerMask};
 use avian2d::dynamics::rigid_body::{LinearVelocity, RigidBody};
+use avian2d::math::{FRAC_PI_2, PI};
 use bevy::prelude::*;
 use bevy_behave::behave;
 use bevy_behave::prelude::*;
+use bevy_ecs_ldtk::EntityInstance;
+use bevy_ecs_ldtk::ldtk::ldtk_fields::LdtkFields;
 use bevy_ecs_ldtk::{LdtkEntity, app::LdtkEntityAppExt};
 
 const ENEMY_HEIGHT: f32 = 16.0;
@@ -29,6 +32,8 @@ struct StabberBundle {
     core: EnemyCoreBundle,
     detection_distance: DetectionDistance,
     hurts: HurtsWhenTouched,
+    #[with(set_charge_direction)]
+    charge_direction: ChargeDirection,
 }
 
 impl Default for StabberBundle {
@@ -50,12 +55,14 @@ impl Default for StabberBundle {
                 width: 10.0,
                 height: 10.0,
             },
+            charge_direction: ChargeDirection(OrthagonalDirection::Right),
         }
     }
 }
 
 pub fn plugin(app: &mut App) {
     app.add_systems(Startup, setup_enemy);
+    app.add_systems(Update, rotate_sprite);
     app.add_systems(FixedUpdate, collide_with_environment);
     app.register_ldtk_entity::<StabberBundle>("Stabber");
     app.add_observer(on_spawned);
@@ -91,7 +98,12 @@ impl SurfaceColliderBundle {
     }
 }
 
-fn on_spawned(event: On<Add, Stabber>, mut commands: Commands, animations: Res<StabberAnimations>) {
+fn on_spawned(
+    event: On<Add, Stabber>,
+    mut query: Query<&ChargeDirection, With<Stabber>>,
+    mut commands: Commands,
+    animations: Res<StabberAnimations>,
+) {
     commands.entity(event.entity).insert(animations.0.clone());
 
     // @todo allow destroying with bell rather than knockback
@@ -107,20 +119,25 @@ fn on_spawned(event: On<Add, Stabber>, mut commands: Commands, animations: Res<S
         ));
     });
 
+    let Ok(direction) = query.get_mut(event.entity) else {
+        return;
+    };
+
+    // Note that this will rotate with the sprite; see rotate_sprite
+    let surface_collider_offset = 6.0;
     commands.entity(event.entity).with_children(|parent| {
-        // @todo put this on the moving side
         parent.spawn((
             SurfaceColliderBundle::new(GameLayers::Enemies, GameLayers::Environment, 4., 4.),
-            Transform::from_xyz(0.0, 6.0, 0.0),
+            Transform::from_xyz(0., surface_collider_offset, 0.0),
         ));
     });
 
+    let attack = ChargeStraight::from(direction);
     let tree = behave! {
         Behave::Forever => {
             Behave::Sequence => {
                 Behave::spawn_named("Is player in attack range", WaitUntilPlayerIsNear),
-                // @todo set the direction as a field on the map
-                Behave::spawn_named("Attack", ChargeStraight { direction: OrthagonalDirection::Up }),
+                Behave::spawn_named("Attack", attack),
             },
         }
     };
@@ -129,6 +146,21 @@ fn on_spawned(event: On<Add, Stabber>, mut commands: Commands, animations: Res<S
         BehaveTree::new(tree),
         ChildOf(event.entity),
     ));
+}
+
+fn rotate_sprite(mut query: Query<(&ChargeDirection, &mut Transform), Added<Stabber>>) {
+    for (direction, mut transform) in query.iter_mut() {
+        // Rotate sprite to face direction; it is normally facing up
+        if direction.0 == OrthagonalDirection::Down {
+            transform.rotation = Quat::from_rotation_z(PI);
+        }
+        if direction.0 == OrthagonalDirection::Left {
+            transform.rotation = Quat::from_rotation_z(FRAC_PI_2);
+        }
+        if direction.0 == OrthagonalDirection::Right {
+            transform.rotation = Quat::from_rotation_z(-FRAC_PI_2);
+        }
+    }
 }
 
 fn setup_enemy(
@@ -184,4 +216,9 @@ fn collide_with_environment(
             commands.entity(mover).despawn();
         }
     }
+}
+
+fn set_charge_direction(ld_entity: &EntityInstance) -> ChargeDirection {
+    let val = ld_entity.get_enum_field("Direction").unwrap();
+    ChargeDirection(OrthagonalDirection::from(val as &str))
 }

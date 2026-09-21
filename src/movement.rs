@@ -127,13 +127,24 @@ pub enum MovementState {
 }
 
 #[derive(Component, Copy, Clone, PartialEq, Eq, Debug, Default)]
-#[allow(dead_code)]
 pub enum OrthagonalDirection {
     #[default]
     Right,
     Down,
     Left,
     Up,
+}
+
+impl From<&str> for OrthagonalDirection {
+    fn from(value: &str) -> Self {
+        match value {
+            "Up" => Self::Up,
+            "Down" => Self::Down,
+            "Left" => Self::Left,
+            "Right" => Self::Right,
+            _ => Self::Right,
+        }
+    }
 }
 
 #[derive(Component, Copy, Clone, PartialEq, Eq, Debug, Default)]

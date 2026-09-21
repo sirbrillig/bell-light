@@ -7,9 +7,18 @@ use crate::{
     movement::{IntendedVelocity, MovementSpeed, OrthagonalDirection},
 };
 
+#[derive(Component, Clone, PartialEq)]
+pub struct ChargeDirection(pub OrthagonalDirection);
+
 #[derive(Component, Clone)]
 pub struct ChargeStraight {
     pub direction: OrthagonalDirection,
+}
+
+impl From<&ChargeDirection> for ChargeStraight {
+    fn from(value: &ChargeDirection) -> Self {
+        Self { direction: value.0 }
+    }
 }
 
 pub fn plugin(app: &mut App) {

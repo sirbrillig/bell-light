@@ -11,7 +11,7 @@
 	"iid": "9d6ad7e0-96d0-11f1-b2aa-598e4c6826cd",
 	"jsonVersion": "1.5.3",
 	"appBuildId": 473703,
-	"nextUid": 69,
+	"nextUid": 72,
 	"identifierStyle": "Capitalize",
 	"toc": [],
 	"worldLayout": "Free",
@@ -1129,7 +1129,48 @@
 			"limitBehavior": "MoveLastOne",
 			"pivotX": 0.5,
 			"pivotY": 0.5,
-			"fieldDefs": []
+			"fieldDefs": [
+				{
+					"identifier": "Direction",
+					"doc": null,
+					"__type": "LocalEnum.Direction",
+					"uid": 71,
+					"type": "F_Enum(69)",
+					"isArray": false,
+					"canBeNull": false,
+					"arrayMinLength": null,
+					"arrayMaxLength": null,
+					"editorDisplayMode": "EntityTile",
+					"editorDisplayScale": 1,
+					"editorDisplayPos": "Above",
+					"editorLinkStyle": "StraightArrow",
+					"editorDisplayColor": null,
+					"editorAlwaysShow": false,
+					"editorShowInWorld": true,
+					"editorCutLongValues": true,
+					"editorTextSuffix": null,
+					"editorTextPrefix": null,
+					"useForSmartColor": false,
+					"exportToToc": false,
+					"searchable": false,
+					"min": null,
+					"max": null,
+					"regex": null,
+					"acceptFileTypes": null,
+					"defaultOverride": {
+						"id": "V_String",
+						"params": ["Up"]
+					},
+					"textLanguageMode": null,
+					"symmetricalRef": false,
+					"autoChainRef": true,
+					"allowOutOfLevelRef": true,
+					"allowedRefs": "OnlySame",
+					"allowedRefsEntityUid": null,
+					"allowedRefTags": [],
+					"tilesetUid": null
+				}
+			]
 		}
 	], "tilesets": [
 		{
@@ -1216,8 +1257,32 @@
 			"customData": [],
 			"savedSelections": [],
 			"cachedPixelData": null
+		},
+		{
+			"__cWid": 0,
+			"__cHei": 0,
+			"identifier": "Tileset2",
+			"uid": 70,
+			"relPath": null,
+			"embedAtlas": null,
+			"pxWid": 0,
+			"pxHei": 0,
+			"tileGridSize": 16,
+			"spacing": 0,
+			"padding": 0,
+			"tags": [],
+			"tagsSourceEnumUid": null,
+			"enumTags": [],
+			"customData": [],
+			"savedSelections": [],
+			"cachedPixelData": null
 		}
-	], "enums": [], "externalEnums": [], "levelFields": [] },
+	], "enums": [{ "identifier": "Direction", "uid": 69, "values": [
+		{ "id": "Up", "tileRect": { "tilesetUid": 12, "x": 64, "y": 96, "w": 16, "h": 16 }, "color": 12470831 },
+		{ "id": "Down", "tileRect": { "tilesetUid": 12, "x": 80, "y": 96, "w": 16, "h": 16 }, "color": 14120515 },
+		{ "id": "Left", "tileRect": { "tilesetUid": 12, "x": 416, "y": 96, "w": 16, "h": 16 }, "color": 15389866 },
+		{ "id": "Right", "tileRect": { "tilesetUid": 12, "x": 432, "y": 96, "w": 16, "h": 16 }, "color": 14984818 }
+	], "iconTilesetUid": 12, "externalRelPath": null, "externalFileChecksum": null, "tags": [] }], "externalEnums": [], "levelFields": [] },
 	"levels": [
 		{
 			"identifier": "Level_0",
@@ -1895,7 +1960,7 @@
 						},
 						{
 							"__identifier": "Stabber",
-							"__grid": [13,52],
+							"__grid": [13,48],
 							"__pivot": [0.5,0.5],
 							"__tags": [],
 							"__tile": { "tilesetUid": 12, "x": 80, "y": 96, "w": 16, "h": 16 },
@@ -1904,10 +1969,13 @@
 							"width": 16,
 							"height": 16,
 							"defUid": 68,
-							"px": [216,840],
-							"fieldInstances": [],
+							"px": [216,776],
+							"fieldInstances": [{ "__identifier": "Direction", "__type": "LocalEnum.Direction", "__value": "Down", "__tile": { "tilesetUid": 12, "x": 80, "y": 96, "w": 16, "h": 16 }, "defUid": 71, "realEditorValues": [{
+								"id": "V_String",
+								"params": ["Down"]
+							}] }],
 							"__worldX": 72,
-							"__worldY": 296
+							"__worldY": 232
 						}
 					]
 				},
