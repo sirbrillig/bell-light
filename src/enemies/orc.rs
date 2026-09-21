@@ -19,7 +19,8 @@ const ENEMY_HEIGHT_ANCHOR_OFFSET: f32 = 0.01;
 const ENEMY_FOOT_HEIGHT: f32 = 2.0;
 const ENEMY_FOOT_ANCHOR: f32 = -(ENEMY_HEIGHT / 2.) + (ENEMY_FOOT_HEIGHT / 2.);
 const ENEMY_FOOT_RANGE: f32 = 2.0;
-const CHASE_RANGE: f32 = 5000.0;
+const CHASE_RANGE: f32 = 70.0;
+const ATTACK_RANGE: f32 = 26.0;
 
 #[derive(Component, Default)]
 pub struct Orc;
@@ -80,7 +81,6 @@ fn on_spawned(event: On<Add, Orc>, mut commands: Commands, animations: Res<OrcAn
         ));
     });
 
-    let attack_range = 700.0;
     let attack = Attack {
         duration_secs: 1.5,
         active_frames: (3..5).into(),
@@ -96,14 +96,14 @@ fn on_spawned(event: On<Add, Orc>, mut commands: Commands, animations: Res<OrcAn
         Behave::Forever => {
             Behave::Fallback => {
                 Behave::Sequence => {
-                   Behave::spawn_named("Is player in attack range", TargetInRange {range: attack_range}),
+                   Behave::spawn_named("Is player in attack range", TargetInRange {range: ATTACK_RANGE}),
                    Behave::spawn_named("Is facing player", IsFacingTarget),
                    Behave::spawn_named("Attack", attack),
                 },
                 Behave::Sequence => {
                     Behave::spawn_named("Is player in chase range", TargetInRange {range: CHASE_RANGE}),
                     Behave::spawn_named("Face player", FaceTarget),
-                    Behave::spawn_named("Move toward player", MoveTowardEntity {near_distance: attack_range, far_distance: CHASE_RANGE}),
+                    Behave::spawn_named("Move toward player", MoveTowardEntity {near_distance: ATTACK_RANGE, far_distance: CHASE_RANGE}),
                 },
                 Behave::spawn_named("Is player in at least chase range", WaitUntilPlayerIsNear),
             }

@@ -20,7 +20,7 @@ const ENEMY_HEIGHT_ANCHOR_OFFSET: f32 = 0.01;
 const ENEMY_FOOT_HEIGHT: f32 = 2.0;
 const ENEMY_FOOT_ANCHOR: f32 = -(ENEMY_HEIGHT / 2.) + (ENEMY_FOOT_HEIGHT / 2.);
 const ENEMY_FOOT_RANGE: f32 = 2.0;
-const ATTACK_RANGE: f32 = 800.0;
+const ATTACK_RANGE: f32 = 30.0;
 const ATTACK_SPEED: f32 = 100.0;
 
 #[derive(Component, Default)]

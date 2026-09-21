@@ -31,7 +31,7 @@ fn wait_for_player(
         let Ok(near_distance) = mover_props.get(ctx.target_entity()) else {
             continue;
         };
-        let distance_to_player = player_pos.distance_squared(enemy_pos.0);
+        let distance_to_player = player_pos.distance(enemy_pos.0);
         if distance_to_player <= near_distance.0 {
             commands.trigger(ctx.success());
             commands.entity(task).insert(TaskReported);

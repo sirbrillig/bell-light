@@ -39,7 +39,7 @@ fn move_toward_entity(
             FacingDirection::Left
         };
 
-        let distance_to_player = target_pos.distance_squared(mover_pos.0);
+        let distance_to_player = target_pos.distance(mover_pos.0);
         if distance_to_player <= distance.near_distance {
             // Stop when we get close
             commands

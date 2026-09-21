@@ -30,7 +30,7 @@ fn action(
             continue;
         };
 
-        let distance_to_player = target_pos.distance_squared(mover_pos.0);
+        let distance_to_player = target_pos.distance(mover_pos.0);
         if distance_to_player <= range.range {
             commands.trigger(ctx.success());
         } else {
