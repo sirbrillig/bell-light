@@ -43,6 +43,6 @@ fn move_toward_entity(
         };
         commands
             .entity(ctx.target_entity())
-            .insert(IntendedVelocity(speed_vec));
+            .insert(IntendedVelocity::from_vec(speed_vec));
     }
 }
