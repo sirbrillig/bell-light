@@ -1,5 +1,5 @@
 use crate::ai::tasks::move_toward_entity::ChaseTarget;
-use crate::animation::AnimatedSpriteBundle;
+use crate::animation::{AnimatedSpriteBundle, AnimationKey, SpriteAnimation};
 use crate::attack::HitBoxBundle;
 use crate::movement::*;
 use crate::player::Player;
@@ -27,6 +27,9 @@ pub struct Enemy;
 
 #[derive(Component, Default)]
 pub struct EnemyHurtBox;
+
+#[derive(Component, Default)]
+pub struct EnemyDying;
 
 #[derive(Component)]
 pub struct HurtsWhenTouched {
@@ -61,6 +64,7 @@ pub struct EnemySettings {
     pub ground_detector_anchor: f32,
     pub ground_detector_range: f32,
     pub animation_default_frames: usize,
+    pub animation_secs: f32,
     pub body_type: RigidBody,
 }
 
@@ -74,6 +78,7 @@ impl Default for EnemySettings {
             ground_detector_anchor: ENEMY_FOOT_ANCHOR,
             ground_detector_range: ENEMY_FOOT_RANGE,
             animation_default_frames: 6,
+            animation_secs: 0.1,
             body_type: RigidBody::Dynamic,
         }
     }
@@ -101,7 +106,7 @@ impl EnemyCoreBundle {
             animation: AnimatedSpriteBundle::new(
                 settings.sprite_height_offset,
                 settings.animation_default_frames,
-                0.1,
+                settings.animation_secs,
             ),
             sprite_height: EnemySpriteHeight(settings.sprite_height),
             ..EnemyCoreBundle::default()
@@ -143,9 +148,26 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, set_chase_target);
+        app.add_systems(Update, (set_chase_target, start_dying, finish_dying));
         app.add_plugins((orc::plugin, stabber::plugin));
         app.add_observer(on_enemy_spawned);
+    }
+}
+
+fn start_dying(enemies: Query<Entity, Added<EnemyDying>>, mut commands: Commands) {
+    for enemy in enemies.iter() {
+        commands.entity(enemy).insert(AnimationKey::Shatter);
+    }
+}
+
+fn finish_dying(
+    animating: Query<(Entity, &SpriteAnimation, &AnimationKey), With<EnemyDying>>,
+    mut commands: Commands,
+) {
+    for (entity, animation, key) in animating.iter() {
+        if matches!(key, AnimationKey::Shatter) && animation.timer.is_finished() {
+            commands.entity(entity).despawn();
+        }
     }
 }
 

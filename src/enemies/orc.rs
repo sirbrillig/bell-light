@@ -47,6 +47,7 @@ impl Default for OrcBundle {
                 ground_detector_anchor: ENEMY_FOOT_ANCHOR,
                 ground_detector_range: ENEMY_FOOT_RANGE,
                 animation_default_frames: 6,
+                ..Default::default()
             }),
             hurts: HurtsWhenTouched {
                 width: 10.0,
@@ -127,6 +128,7 @@ fn setup_enemy(
             key: AnimationKey::Idle,
             path: "sprites/Orc-Idle.png",
             columns: 6,
+            rows: 1,
             frames: 6,
         },
         AnimationClipSpec {
@@ -134,6 +136,7 @@ fn setup_enemy(
             key: AnimationKey::Walking,
             path: "sprites/Orc-Walk.png",
             columns: 8,
+            rows: 1,
             frames: 8,
         },
         AnimationClipSpec {
@@ -141,6 +144,7 @@ fn setup_enemy(
             key: AnimationKey::Jumping,
             path: "sprites/Orc-Walk.png",
             columns: 8,
+            rows: 1,
             frames: 1,
         },
         AnimationClipSpec {
@@ -148,6 +152,7 @@ fn setup_enemy(
             key: AnimationKey::Attacking,
             path: "sprites/Orc-Attack01.png",
             columns: 6,
+            rows: 1,
             frames: 6,
         },
     ];

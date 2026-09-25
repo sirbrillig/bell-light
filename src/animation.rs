@@ -1,6 +1,7 @@
 use crate::{
     GameSet,
     attack::Attacking,
+    enemies::EnemyDying,
     movement::{FacingDirection, Knockback, MovementState},
 };
 use avian2d::dynamics::rigid_body::LinearVelocity;
@@ -59,7 +60,7 @@ impl AnimationSet {
                             layout: layouts.add(TextureAtlasLayout::from_grid(
                                 UVec2::splat(spec.tile_size),
                                 spec.columns,
-                                1, // one row
+                                spec.rows,
                                 None,
                                 None,
                             )),
@@ -77,6 +78,7 @@ pub struct AnimationClipSpec {
     pub key: AnimationKey,
     pub path: &'static str,
     pub columns: u32,
+    pub rows: u32,
     pub frames: u32,
 }
 
@@ -123,14 +125,34 @@ impl Plugin for AnimationPlugin {
     }
 }
 
-fn determine_animation_key(mut query: Query<(&MovementState, &mut AnimationKey, Has<Attacking>)>) {
-    for (state, mut key, is_attacking) in query.iter_mut() {
-        let next_key = match (is_attacking, state) {
-            (true, _) => AnimationKey::Attacking,
-            (false, MovementState::Jumping) => AnimationKey::Jumping,
-            (false, MovementState::Walking) => AnimationKey::Walking,
-            (false, MovementState::Idle) => AnimationKey::Idle,
-        };
+fn get_next_key(
+    is_dying: bool,
+    is_attacking: bool,
+    movement_state: &MovementState,
+) -> AnimationKey {
+    if is_dying {
+        return AnimationKey::Shatter;
+    }
+    if is_attacking {
+        return AnimationKey::Attacking;
+    }
+    match movement_state {
+        MovementState::Jumping => AnimationKey::Jumping,
+        MovementState::Walking => AnimationKey::Walking,
+        MovementState::Idle => AnimationKey::Idle,
+    }
+}
+
+fn determine_animation_key(
+    mut query: Query<(
+        &MovementState,
+        &mut AnimationKey,
+        Has<Attacking>,
+        Has<EnemyDying>,
+    )>,
+) {
+    for (movement_state, mut key, is_attacking, is_dying) in query.iter_mut() {
+        let next_key = get_next_key(is_dying, is_attacking, movement_state);
         if *key != next_key {
             *key = next_key;
         }

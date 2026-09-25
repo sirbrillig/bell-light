@@ -299,6 +299,7 @@ fn setup_player(
             key: AnimationKey::Idle,
             path: "sprites/Priest-Idle.png",
             columns: 6,
+            rows: 1,
             frames: 6,
         },
         AnimationClipSpec {
@@ -306,6 +307,7 @@ fn setup_player(
             key: AnimationKey::Walking,
             path: "sprites/Priest-Walk.png",
             columns: 8,
+            rows: 1,
             frames: 8,
         },
         AnimationClipSpec {
@@ -313,6 +315,7 @@ fn setup_player(
             key: AnimationKey::Jumping,
             path: "sprites/Priest-Walk.png",
             columns: 8,
+            rows: 1,
             frames: 1,
         },
     ];

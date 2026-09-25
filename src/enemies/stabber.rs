@@ -2,7 +2,7 @@ use crate::ai::tasks::charge_straight::{ChargeDirection, ChargeStraight};
 use crate::ai::tasks::wait_until_player_is_near::{DetectionDistance, WaitUntilPlayerIsNear};
 use crate::animation::{AnimationClipSpec, AnimationKey, AnimationSet};
 use crate::attack::HurtBoxBundle;
-use crate::enemies::{EnemyCoreBundle, EnemyHurtBox, EnemySettings, HurtsWhenTouched};
+use crate::enemies::{EnemyCoreBundle, EnemyDying, EnemyHurtBox, EnemySettings, HurtsWhenTouched};
 use crate::movement::{GameLayers, OrthagonalDirection};
 use avian2d::collision::collider::collider_hierarchy::ColliderOf;
 use avian2d::collision::collider::{Collider, CollidingEntities, CollisionLayers, LayerMask};
@@ -50,6 +50,7 @@ impl Default for StabberBundle {
                 ground_detector_anchor: ENEMY_FOOT_ANCHOR,
                 ground_detector_range: ENEMY_FOOT_RANGE,
                 animation_default_frames: 1,
+                ..Default::default()
             }),
             hurts: HurtsWhenTouched {
                 width: 10.0,
@@ -174,6 +175,7 @@ fn setup_enemy(
             key: AnimationKey::Idle,
             path: "sprites/bloodstoneOre.png",
             columns: 1,
+            rows: 1,
             frames: 1,
         },
         AnimationClipSpec {
@@ -181,6 +183,7 @@ fn setup_enemy(
             key: AnimationKey::Jumping,
             path: "sprites/bloodstoneOre.png",
             columns: 1,
+            rows: 1,
             frames: 1,
         },
         AnimationClipSpec {
@@ -188,7 +191,16 @@ fn setup_enemy(
             key: AnimationKey::Attacking,
             path: "sprites/bloodstoneOre.png",
             columns: 1,
+            rows: 1,
             frames: 1,
+        },
+        AnimationClipSpec {
+            tile_size: 32,
+            key: AnimationKey::Shatter,
+            path: "sprites/explosion-1.png",
+            columns: 6,
+            rows: 2,
+            frames: 9,
         },
     ];
     commands.insert_resource(StabberAnimations(AnimationSet::from_specs(
@@ -199,7 +211,7 @@ fn setup_enemy(
 }
 
 fn collide_with_environment(
-    movers: Query<(Entity, &LinearVelocity), With<Stabber>>,
+    mut movers: Query<(Entity, &mut LinearVelocity), With<Stabber>>,
     colliders: Query<(&CollidingEntities, &ColliderOf), With<SurfaceCollider>>,
     mut commands: Commands,
 ) {
@@ -207,13 +219,14 @@ fn collide_with_environment(
         if collider.is_empty() {
             continue;
         }
-        let Ok((mover, vel)) = movers.get(owner.body) else {
+        let Ok((mover, mut vel)) = movers.get_mut(owner.body) else {
             continue;
         };
         // If we hit a surface while moving, destroy the mover
         if vel.x != 0. || vel.y != 0. {
-            // @todo add destruction animation
-            commands.entity(mover).despawn();
+            commands.entity(mover).insert(EnemyDying);
+            vel.x = 0.;
+            vel.y = 0.;
         }
     }
 }

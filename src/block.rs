@@ -105,7 +105,7 @@ fn setup_block(
         )),
         frames: 1,
     };
-    let clip = CharacterAnimationClip {
+    let shatter = CharacterAnimationClip {
         image: asset_server.load("sprites/Stone_Node_Animation.png"),
         layout: layouts.add(TextureAtlasLayout::from_grid(
             UVec2::splat(32),
@@ -117,7 +117,10 @@ fn setup_block(
         frames: 9,
     };
     commands.insert_resource(BlockAnimations(AnimationSet {
-        animation_map: HashMap::from([(AnimationKey::Idle, idle), (AnimationKey::Shatter, clip)]),
+        animation_map: HashMap::from([
+            (AnimationKey::Idle, idle),
+            (AnimationKey::Shatter, shatter),
+        ]),
     }));
 }
 
