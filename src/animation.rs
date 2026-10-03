@@ -65,6 +65,7 @@ impl AnimationSet {
                                 None,
                             )),
                             frames: spec.frames as usize,
+                            timer: spec.timer.clone(),
                         },
                     )
                 })
@@ -80,6 +81,7 @@ pub struct AnimationClipSpec {
     pub columns: u32,
     pub rows: u32,
     pub frames: u32,
+    pub timer: Timer,
 }
 
 #[derive(Component, Copy, Clone, PartialEq, Eq, Debug, Default, Hash)]
@@ -91,6 +93,7 @@ pub enum AnimationKey {
     Attacking,
     Repulsion,
     Shatter,
+    Explode,
 }
 
 #[derive(Component)]
@@ -104,6 +107,7 @@ pub struct CharacterAnimationClip {
     pub image: Handle<Image>,
     pub layout: Handle<TextureAtlasLayout>,
     pub frames: usize,
+    pub timer: Timer,
 }
 
 pub struct AnimationPlugin;
@@ -181,6 +185,8 @@ fn animate_sprites(
     }
 }
 
+// Any time the AnimationKey changes, get the appropriate new animation clip out of the AnimationSet
+// and use it to replace the current SpriteAnimation settings.
 fn update_sprites(
     mut query: Query<
         (
@@ -203,7 +209,7 @@ fn update_sprites(
             index: 0,
         });
         animation.frames = clip.frames;
-        animation.timer.reset();
+        animation.timer = clip.timer.clone();
     }
 }
 

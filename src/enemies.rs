@@ -1,5 +1,9 @@
+use std::collections::HashMap;
+
 use crate::ai::tasks::move_toward_entity::ChaseTarget;
-use crate::animation::{AnimatedSpriteBundle, AnimationKey, SpriteAnimation};
+use crate::animation::{
+    AnimatedSpriteBundle, AnimationKey, AnimationSet, CharacterAnimationClip, SpriteAnimation,
+};
 use crate::attack::HitBoxBundle;
 use crate::movement::*;
 use crate::player::Player;
@@ -22,14 +26,30 @@ const ENEMY_FOOT_HEIGHT: f32 = 2.0;
 const ENEMY_FOOT_ANCHOR: f32 = -(ENEMY_HEIGHT / 2.) + (ENEMY_FOOT_HEIGHT / 2.);
 const ENEMY_FOOT_RANGE: f32 = 2.0;
 
+const EXPLODE_SECS: f32 = 0.3;
+const EXPLODE_FRAMES: usize = 9;
+
 #[derive(Component, Default)]
 pub struct Enemy;
 
 #[derive(Component, Default)]
 pub struct EnemyHurtBox;
 
-#[derive(Component, Default)]
+#[derive(Component)]
 pub struct EnemyDying;
+
+#[derive(Component)]
+pub struct Explosion {
+    timer: Timer,
+}
+
+impl Default for Explosion {
+    fn default() -> Self {
+        Self {
+            timer: Timer::from_seconds(0.5, TimerMode::Once),
+        }
+    }
+}
 
 #[derive(Component)]
 pub struct HurtsWhenTouched {
@@ -64,7 +84,7 @@ pub struct EnemySettings {
     pub ground_detector_anchor: f32,
     pub ground_detector_range: f32,
     pub animation_default_frames: usize,
-    pub animation_secs: f32,
+    pub animation_default_secs: f32,
     pub body_type: RigidBody,
 }
 
@@ -78,7 +98,7 @@ impl Default for EnemySettings {
             ground_detector_anchor: ENEMY_FOOT_ANCHOR,
             ground_detector_range: ENEMY_FOOT_RANGE,
             animation_default_frames: 6,
-            animation_secs: 0.1,
+            animation_default_secs: 0.1,
             body_type: RigidBody::Dynamic,
         }
     }
@@ -103,10 +123,12 @@ impl EnemyCoreBundle {
                 SpatialQueryFilter::from_mask(GameLayers::Environment),
             )
             .with_max_distance(settings.ground_detector_range),
+            // This adds a default animation to the enemy, but that will change whenever
+            // AnimationKey is changed.
             animation: AnimatedSpriteBundle::new(
                 settings.sprite_height_offset,
                 settings.animation_default_frames,
-                settings.animation_secs,
+                settings.animation_default_secs,
             ),
             sprite_height: EnemySpriteHeight(settings.sprite_height),
             ..EnemyCoreBundle::default()
@@ -148,24 +170,93 @@ pub struct EnemyPlugin;
 
 impl Plugin for EnemyPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (set_chase_target, start_dying, finish_dying));
+        app.add_systems(Startup, setup_explosion);
+        app.add_systems(Update, (set_chase_target, start_dying, process_dying));
         app.add_plugins((orc::plugin, stabber::plugin));
         app.add_observer(on_enemy_spawned);
     }
 }
 
-fn start_dying(enemies: Query<Entity, Added<EnemyDying>>, mut commands: Commands) {
-    for enemy in enemies.iter() {
-        commands.entity(enemy).insert(AnimationKey::Shatter);
+#[derive(Bundle)]
+pub struct ExplosionBundle {
+    timer: Explosion,
+    body: RigidBody,
+    animation_key: AnimationKey,
+    sprite_sheet: Sprite,
+    animation: SpriteAnimation,
+}
+
+impl Default for ExplosionBundle {
+    fn default() -> Self {
+        Self {
+            timer: Explosion::default(),
+            body: RigidBody::Static,
+            animation_key: AnimationKey::Explode,
+            sprite_sheet: Sprite::default(),
+            animation: SpriteAnimation {
+                frames: EXPLODE_FRAMES,
+                timer: Timer::from_seconds(
+                    EXPLODE_SECS / (EXPLODE_FRAMES as f32),
+                    TimerMode::Repeating,
+                ),
+            },
+        }
     }
 }
 
-fn finish_dying(
-    animating: Query<(Entity, &SpriteAnimation, &AnimationKey), With<EnemyDying>>,
+#[derive(Resource)]
+pub struct ExplosionAnimations(AnimationSet);
+
+fn setup_explosion(
+    asset_server: Res<AssetServer>,
+    mut layouts: ResMut<Assets<TextureAtlasLayout>>,
     mut commands: Commands,
 ) {
-    for (entity, animation, key) in animating.iter() {
-        if matches!(key, AnimationKey::Shatter) && animation.timer.is_finished() {
+    let sprite_size = 32;
+    let row_number = 1;
+    let clip = CharacterAnimationClip {
+        image: asset_server.load("sprites/explosion-1.png"),
+        layout: layouts.add(TextureAtlasLayout::from_grid(
+            UVec2::splat(sprite_size),
+            12,
+            1,
+            None,
+            Some(UVec2::new(0, sprite_size * row_number)),
+        )),
+        frames: EXPLODE_FRAMES,
+        // @todo the explosion repeats and it should only happen once
+        timer: Timer::from_seconds(EXPLODE_SECS / (EXPLODE_FRAMES as f32), TimerMode::Repeating),
+    };
+    commands.insert_resource(ExplosionAnimations(AnimationSet {
+        animation_map: HashMap::from([(AnimationKey::Explode, clip)]),
+    }));
+}
+
+fn start_dying(
+    enemies: Query<(Entity, &Transform), Added<EnemyDying>>,
+    mut commands: Commands,
+    animations: Res<ExplosionAnimations>,
+) {
+    for (enemy, pos) in enemies.iter() {
+        let clip = animations.0.clone();
+        commands.spawn((
+            ExplosionBundle::default(),
+            clip,
+            // Put the explosion on the map where the enemy is
+            Transform::from_xyz(pos.translation.x, pos.translation.y, 0.0),
+        ));
+        commands.entity(enemy).despawn();
+    }
+}
+
+fn process_dying(
+    mut animating: Query<(Entity, &mut Explosion)>,
+    mut commands: Commands,
+    time: Res<Time>,
+) {
+    for (entity, mut explosion) in animating.iter_mut() {
+        explosion.timer.tick(time.delta());
+        if explosion.timer.is_finished() {
             commands.entity(entity).despawn();
         }
     }

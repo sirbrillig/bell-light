@@ -20,8 +20,11 @@ const ENEMY_HEIGHT_ANCHOR_OFFSET: f32 = 0.01;
 const ENEMY_FOOT_HEIGHT: f32 = 2.0;
 const ENEMY_FOOT_ANCHOR: f32 = -(ENEMY_HEIGHT / 2.) + (ENEMY_FOOT_HEIGHT / 2.);
 const ENEMY_FOOT_RANGE: f32 = 2.0;
-const ATTACK_RANGE: f32 = 30.0;
-const ATTACK_SPEED: f32 = 100.0;
+const ATTACK_RANGE: f32 = 55.0;
+const ATTACK_SPEED: f32 = 110.0;
+// @todo can we remove these in favor of explosions?
+const BREAK_SECS: f32 = 0.3;
+const BREAK_FRAMES: usize = 9;
 
 #[derive(Component, Default)]
 pub struct Stabber;
@@ -137,6 +140,7 @@ fn on_spawned(
     let tree = behave! {
         Behave::Forever => {
             Behave::Sequence => {
+                // @todo use raycasting instead of radius; we want the player to be directly underneath
                 Behave::spawn_named("Is player in attack range", WaitUntilPlayerIsNear),
                 Behave::spawn_named("Attack", attack),
             },
@@ -177,6 +181,7 @@ fn setup_enemy(
             columns: 1,
             rows: 1,
             frames: 1,
+            timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         },
         AnimationClipSpec {
             tile_size: 16,
@@ -185,6 +190,7 @@ fn setup_enemy(
             columns: 1,
             rows: 1,
             frames: 1,
+            timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         },
         AnimationClipSpec {
             tile_size: 16,
@@ -193,6 +199,7 @@ fn setup_enemy(
             columns: 1,
             rows: 1,
             frames: 1,
+            timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         },
         AnimationClipSpec {
             tile_size: 32,
@@ -200,7 +207,8 @@ fn setup_enemy(
             path: "sprites/explosion-1.png",
             columns: 6,
             rows: 2,
-            frames: 9,
+            frames: BREAK_FRAMES as u32,
+            timer: Timer::from_seconds(BREAK_SECS / BREAK_FRAMES as f32, TimerMode::Repeating),
         },
     ];
     commands.insert_resource(StabberAnimations(AnimationSet::from_specs(
@@ -211,7 +219,7 @@ fn setup_enemy(
 }
 
 fn collide_with_environment(
-    mut movers: Query<(Entity, &mut LinearVelocity), With<Stabber>>,
+    mut movers: Query<(Entity, &mut LinearVelocity), (With<Stabber>, Without<EnemyDying>)>,
     colliders: Query<(&CollidingEntities, &ColliderOf), With<SurfaceCollider>>,
     mut commands: Commands,
 ) {
@@ -225,6 +233,7 @@ fn collide_with_environment(
         // If we hit a surface while moving, destroy the mover
         if vel.x != 0. || vel.y != 0. {
             commands.entity(mover).insert(EnemyDying);
+            // @todo maybe we don't need this since this will be destroyed presently
             vel.x = 0.;
             vel.y = 0.;
         }

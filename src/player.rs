@@ -281,6 +281,7 @@ fn move_player(
     if keyboard_input.just_released(KeyCode::ArrowUp) && vel.0.y > 0.0 {
         vel.0.y = vel.0.y.min(PLAYER_JUMP_CUT_SPEED);
     }
+    // @todo why can't player jump when platform is moving up?
     if coyote.can_jump() && keyboard_input.just_pressed(KeyCode::ArrowUp) {
         vel.y = PLAYER_JUMP_SPEED;
         // End the timer when actually jumping.
@@ -301,6 +302,7 @@ fn setup_player(
             columns: 6,
             rows: 1,
             frames: 6,
+            timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         },
         AnimationClipSpec {
             tile_size: 100,
@@ -309,6 +311,7 @@ fn setup_player(
             columns: 8,
             rows: 1,
             frames: 8,
+            timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         },
         AnimationClipSpec {
             tile_size: 100,
@@ -317,6 +320,7 @@ fn setup_player(
             columns: 8,
             rows: 1,
             frames: 1,
+            timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         },
     ];
     commands.insert_resource(PlayerAnimations(AnimationSet::from_specs(

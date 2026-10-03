@@ -130,6 +130,7 @@ fn setup_enemy(
             columns: 6,
             rows: 1,
             frames: 6,
+            timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         },
         AnimationClipSpec {
             tile_size: 100,
@@ -138,6 +139,7 @@ fn setup_enemy(
             columns: 8,
             rows: 1,
             frames: 8,
+            timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         },
         AnimationClipSpec {
             tile_size: 100,
@@ -146,6 +148,7 @@ fn setup_enemy(
             columns: 8,
             rows: 1,
             frames: 1,
+            timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         },
         AnimationClipSpec {
             tile_size: 100,
@@ -154,6 +157,7 @@ fn setup_enemy(
             columns: 6,
             rows: 1,
             frames: 6,
+            timer: Timer::from_seconds(0.1, TimerMode::Repeating),
         },
     ];
     commands.insert_resource(OrcAnimations(AnimationSet::from_specs(

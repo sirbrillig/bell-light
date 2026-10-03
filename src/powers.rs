@@ -15,6 +15,8 @@ use std::collections::HashMap;
 
 const KNOCKBACK_SPEED_X: f32 = 290.0;
 const KNOCKBACK_SPEED_Y: f32 = 110.0;
+const ANIMATION_FRAMES: usize = 10;
+const ANIMATION_SECS: f32 = 0.2;
 
 pub fn powers_plugin(app: &mut App) {
     app.add_systems(Startup, setup_powers);
@@ -93,7 +95,11 @@ fn setup_powers(
             None,
             Some(UVec2::new(0, sprite_size * row_number)),
         )),
-        frames: 10,
+        frames: ANIMATION_FRAMES,
+        timer: Timer::from_seconds(
+            ANIMATION_SECS / (ANIMATION_FRAMES as f32),
+            TimerMode::Repeating,
+        ),
     };
     commands.insert_resource(PowerAnimations(AnimationSet {
         animation_map: HashMap::from([(AnimationKey::Repulsion, repulsion)]),
@@ -108,8 +114,6 @@ fn activate_bell(
     for (player, activate) in query.iter() {
         commands.entity(player).remove::<ActivateBell>();
         let clip = animations.0.clone();
-        let frames = 10;
-        let power_time = 0.2;
         let direction = activate.direction;
         commands.spawn((
             RepulsionBell,
@@ -129,14 +133,17 @@ fn activate_bell(
             BellBundle {
                 // The timer for the power itself
                 timer: BellTimer {
-                    timer: Timer::from_seconds(power_time, TimerMode::Once),
+                    timer: Timer::from_seconds(ANIMATION_SECS, TimerMode::Once),
                 },
                 animation_key: AnimationKey::Repulsion,
                 sprite_sheet: Sprite::default(),
                 // The timer for the animation
                 animation: SpriteAnimation {
-                    frames,
-                    timer: Timer::from_seconds(power_time / (frames as f32), TimerMode::Repeating),
+                    frames: ANIMATION_FRAMES,
+                    timer: Timer::from_seconds(
+                        ANIMATION_SECS / (ANIMATION_FRAMES as f32),
+                        TimerMode::Repeating,
+                    ),
                 },
             },
         ));

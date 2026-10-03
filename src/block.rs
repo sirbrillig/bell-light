@@ -104,6 +104,7 @@ fn setup_block(
             None,
         )),
         frames: 1,
+        timer: Timer::from_seconds(0.1, TimerMode::Repeating),
     };
     let shatter = CharacterAnimationClip {
         image: asset_server.load("sprites/Stone_Node_Animation.png"),
@@ -114,7 +115,11 @@ fn setup_block(
             None,
             None,
         )),
-        frames: 9,
+        frames: BLOCK_BREAK_FRAMES,
+        timer: Timer::from_seconds(
+            BLOCK_BREAK_TIME / BLOCK_BREAK_FRAMES as f32,
+            TimerMode::Repeating,
+        ),
     };
     commands.insert_resource(BlockAnimations(AnimationSet {
         animation_map: HashMap::from([
