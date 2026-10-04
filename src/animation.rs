@@ -8,6 +8,8 @@ use avian2d::dynamics::rigid_body::LinearVelocity;
 use bevy::{prelude::*, sprite::Anchor};
 use std::collections::HashMap;
 
+/// A convenience bundle for a sprite which has a set of animations it may change bettween using the
+/// AnimationKey as the current animation.
 #[derive(Bundle)]
 pub struct AnimatedSpriteBundle {
     sprite_sheet: Sprite,
@@ -30,9 +32,16 @@ impl AnimatedSpriteBundle {
     }
 }
 
+/// Add to an animating entity to manually control its animation. Otherwise the animation will run
+/// itself based on the properties in SpriteAnimation/CharacterAnimationClip. Can be useful for
+/// one-time animations like an attack sequence which need to be synchronized to a different timer.
 #[derive(Component, Clone, Copy)]
 pub struct AnimationProgress(pub f32);
 
+/// A set of CharacterAnimationClips keyed by AnimationKey. Useful for sprites which have a number
+/// of animations they need to switch between. Can be created using a set of AnimationClipSpecs or
+/// manually. An entity with an AnimatedSpriteBundle contains a key that will be used to select and
+/// play the current animation for that sprite.
 #[derive(Component, Clone)]
 pub struct AnimationSet {
     pub animation_map: HashMap<AnimationKey, CharacterAnimationClip>,
@@ -43,6 +52,7 @@ impl AnimationSet {
         self.animation_map.get(key)
     }
 
+    /// Create an AnimationSet from a collection of AnimationClipSpecs as a convenience.
     pub fn from_specs(
         specs: &[AnimationClipSpec],
         asset_server: &AssetServer,
@@ -74,6 +84,9 @@ impl AnimationSet {
     }
 }
 
+/// A helper for creating an AnimationSet. Use when there's a number of animations that a sprite
+/// will change between. Create an AnimationClipSpec for each one and then use them to create an
+/// AnimationSet which will be animated by the components of an AnimatedSpriteBundle.
 pub struct AnimationClipSpec {
     pub tile_size: u32,
     pub key: AnimationKey,
@@ -84,6 +97,8 @@ pub struct AnimationClipSpec {
     pub timer: Timer,
 }
 
+/// The key for an AnimationSet which is usually specified by the key on an AnimatedSpriteBundle.
+/// These are the common states for all sprites using the animation system.
 #[derive(Component, Copy, Clone, PartialEq, Eq, Debug, Default, Hash)]
 pub enum AnimationKey {
     #[default]
@@ -96,12 +111,15 @@ pub enum AnimationKey {
     Explode,
 }
 
+/// A timer to run an animation.
 #[derive(Component)]
 pub struct SpriteAnimation {
     pub frames: usize,
     pub timer: Timer,
 }
 
+/// A sprite animation which will be cloned and used when animating. Its timer will never change; it
+/// is used to set the SpriteAnimation timer that runs the animation itself.
 #[derive(Clone)]
 pub struct CharacterAnimationClip {
     pub image: Handle<Image>,
@@ -147,6 +165,9 @@ fn get_next_key(
     }
 }
 
+/// Possibly update the AnimationKey of an AnimatedSpriteBundle if its other components need that to
+/// happen (see get_next_key). Once the key updates, update_sprites will swap out the
+/// SpriteAnimation for the one matching the new key and start playing it.
 fn determine_animation_key(
     mut query: Query<(
         &MovementState,
@@ -163,6 +184,9 @@ fn determine_animation_key(
     }
 }
 
+/// Run the SpriteAnimation by moving to the next frame. SpriteAnimation has its own timer that
+/// controls this but it can be controlled manually if an entity has AnimationProgress which can be
+/// useful to sync an animation to some other timer (like an attack).
 fn animate_sprites(
     time: Res<Time>,
     mut query: Query<(
@@ -185,8 +209,8 @@ fn animate_sprites(
     }
 }
 
-// Any time the AnimationKey changes, get the appropriate new animation clip out of the AnimationSet
-// and use it to replace the current SpriteAnimation settings.
+// Any time the AnimationKey changes, get the appropriate new CharacterAnimationClip out of the
+// AnimationSet and use it to replace the current SpriteAnimation settings.
 fn update_sprites(
     mut query: Query<
         (
