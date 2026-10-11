@@ -278,14 +278,14 @@ fn move_player(
     }
 
     vel.x = get_change_for_input(&keyboard_input) * speed.0;
-    if keyboard_input.just_released(KeyCode::ArrowUp) && vel.0.y > 0.0 {
+    // If you release the jump button early during a jump, cut the jump velocity.
+    if keyboard_input.just_released(KeyCode::ArrowUp) && !on_ground && vel.0.y > 0.0 {
         vel.0.y = vel.0.y.min(PLAYER_JUMP_CUT_SPEED);
     }
-    // @todo why can't player jump when platform is moving up?
     if coyote.can_jump() && keyboard_input.just_pressed(KeyCode::ArrowUp) {
         vel.y = PLAYER_JUMP_SPEED;
         // End the timer when actually jumping.
-        coyote.end();
+        coyote.jump();
     }
 }
 

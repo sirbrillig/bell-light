@@ -167,6 +167,8 @@ pub enum FacingDirection {
 #[derive(Component)]
 pub struct CoyoteTimer {
     timer: Timer,
+    /// True if the player has jumped while the timer is running but OnGround has not yet caught up.
+    jumped: bool,
 }
 
 impl Default for CoyoteTimer {
@@ -174,7 +176,10 @@ impl Default for CoyoteTimer {
         let mut timer = Timer::from_seconds(0.1, TimerMode::Once);
         // Start completed so it has to be started explicitly.
         timer.tick(timer.remaining());
-        CoyoteTimer { timer }
+        CoyoteTimer {
+            timer,
+            jumped: false,
+        }
     }
 }
 
@@ -183,8 +188,21 @@ impl CoyoteTimer {
         self.timer.tick(self.timer.remaining());
     }
 
+    /// End because the player has jumped.
+    pub fn jump(&mut self) {
+        self.jumped = true;
+        self.end();
+    }
+
     pub fn can_jump(&self) -> bool {
         !self.timer.is_finished()
+    }
+
+    // Restart the timer. Do this constantly when the player is on the ground. Otherwise, tick the
+    // timer.
+    pub fn reset(&mut self) {
+        self.timer.reset();
+        self.jumped = false;
     }
 }
 
@@ -261,14 +279,18 @@ fn ground_detection(
 
 fn coyote_timer(
     time: Res<Time>,
-    query: Query<(Has<OnGround>, &LinearVelocity, &mut CoyoteTimer), With<GroundDetection>>,
+    query: Query<(Has<OnGround>, &mut CoyoteTimer), With<GroundDetection>>,
 ) {
-    for (is_on_ground, vel, mut coyote) in query {
-        // When on the ground and not moving upward (to catch frames when OnGround has not yet been
-        // removed), start the timer.
-        if is_on_ground && vel.y <= 0.1 {
-            coyote.timer.reset();
+    for (is_on_ground, mut coyote) in query {
+        // When on the ground and not jumping (to catch frames when OnGround has not yet been
+        // removed even though we have left the ground), start the timer.
+        if is_on_ground && !coyote.jumped {
+            coyote.reset();
             continue;
+        }
+        // Clear the jumped flag once OnGround has updated and can be trusted.
+        if !is_on_ground && coyote.jumped {
+            coyote.jumped = false;
         }
         coyote.timer.tick(time.delta());
     }
