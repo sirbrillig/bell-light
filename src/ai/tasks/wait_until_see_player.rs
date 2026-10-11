@@ -1,6 +1,7 @@
 use avian2d::{
+    collision::collider::Collider,
     physics_transform::Position,
-    spatial_query::{SpatialQuery, SpatialQueryFilter},
+    spatial_query::{ShapeCastConfig, SpatialQuery, SpatialQueryFilter},
 };
 use bevy::prelude::*;
 use bevy_behave::prelude::*;
@@ -20,6 +21,9 @@ pub fn plugin(app: &mut App) {
     app.add_systems(Update, wait_for_player.in_set(AiSet::Behavior));
 }
 
+const SHAPE_WIDTH: f32 = 32.;
+const SHAPE_HEIGHT: f32 = 32.;
+
 fn wait_for_player(
     query: Query<(Entity, &BehaveCtx, &WaitUntilSeePlayer), Without<TaskReported>>,
     mut commands: Commands,
@@ -31,12 +35,12 @@ fn wait_for_player(
             continue;
         };
         // @todo let ray be interrupted by environment without counting as a detection
-        // @todo use shapecasting
-        let hit = spatial_query.cast_ray(
+        let hit = spatial_query.cast_shape(
+            &Collider::rectangle(SHAPE_HEIGHT, SHAPE_WIDTH),
             enemy_pos.0,
-            wait.direction.to_vec2(),
-            wait.max_distance,
-            false,
+            0.0,
+            wait.direction.to_dir2(),
+            &ShapeCastConfig::from_max_distance(wait.max_distance),
             &SpatialQueryFilter::from_mask([GameLayers::Player]),
         );
         if hit.is_some() {

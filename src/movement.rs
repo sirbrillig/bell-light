@@ -170,7 +170,7 @@ impl From<Dir2> for OrthagonalDirection {
 }
 
 impl OrthagonalDirection {
-    pub fn to_vec2(&self) -> Dir2 {
+    pub fn to_dir2(&self) -> Dir2 {
         match self {
             Self::Up => Dir2::Y,
             Self::Down => Dir2::NEG_Y,
