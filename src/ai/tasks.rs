@@ -8,6 +8,7 @@ pub mod move_toward_entity;
 pub mod stop_moving;
 pub mod target_in_range;
 pub mod wait_until_player_is_near;
+pub mod wait_until_see_player;
 
 /// Attach this to a task entity that runs on Update when it is complete to avoid double completing
 #[derive(Component)]
@@ -16,6 +17,7 @@ pub struct TaskReported;
 pub fn plugin(app: &mut App) {
     app.add_plugins((
         wait_until_player_is_near::plugin,
+        wait_until_see_player::plugin,
         move_toward_entity::plugin,
         stop_moving::plugin,
         target_in_range::plugin,

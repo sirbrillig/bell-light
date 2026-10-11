@@ -8,6 +8,21 @@ use avian2d::dynamics::rigid_body::LinearVelocity;
 use bevy::{prelude::*, sprite::Anchor};
 use std::collections::HashMap;
 
+// @todo A simpler approach: make the animation responsible for its own lifetime
+// 1. Set the sprite up at spawn time. You already have the image handle and layout in the clip, so you don't need the key-lookup step. Build the Sprite with the image and a TextureAtlas at index 0 directly in the spawn call (Sprite::from_atlas_image does this). Then no AnimationKey or AnimationSet is involved, and update_sprites won't touch the entity because its query requires both.
+//
+// 2. Give SpriteAnimation a playback mode. Add a field like mode: Loop | Once (a small enum, or Once with an option to despawn when done). In animate_sprites, when the mode is Once and the index is already on the last frame, stop advancing instead of wrapping with %. That fixes the repeating explosion.
+//
+// 3. Despawn when the animation finishes. Either:
+// - Have animate_sprites despawn the entity (via Commands) when a Once animation finishes, or
+// - Insert a marker like AnimationFinished and let a separate small system despawn anything with it. This is more Bevy-like: animation code doesn't need to know about despawning, and other systems can also react to "finished" (e.g. a power that chains into something else).
+//
+// After that you can delete Explosion, process_dying, and most likely BellTimer/process_bell. One check on the bell: its hitbox lifetime currently equals the animation length (ANIMATION_SECS). If you ever want the hitbox to last a different time than the visual, keep BellTimer for gameplay and let the animation handle only the visuals. Those really are separate concerns.
+//
+// 4. Replace the one-entry maps with plain struct fields. Instead of one resource per effect, each wrapping a HashMap, use one resource like EffectClips with named fields (explosion, repulsion, …), each a CharacterAnimationClip. Field access is checked by the compiler, so there's no Option from .get() and no "no clip for key" case at runtime. It's the Rust equivalent of a typed object instead of a string-keyed map in TypeScript.
+//
+// 5. Optional: a helper so spawning is one line. Once the steps above are in place, a method like clip.one_shot_bundle() that returns (Sprite, SpriteAnimation) lets spawning an effect be commands.spawn((clips.explosion.one_shot_bundle(), Transform::…)). That's the payoff: adding a new effect means one new clip field and a spawn call.
+
 /// A convenience bundle for a sprite which has a set of animations it may change bettween using the
 /// AnimationKey as the current animation.
 #[derive(Bundle)]

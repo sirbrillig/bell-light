@@ -1,5 +1,6 @@
 use crate::ai::tasks::charge_straight::{ChargeDirection, ChargeStraight};
-use crate::ai::tasks::wait_until_player_is_near::{DetectionDistance, WaitUntilPlayerIsNear};
+use crate::ai::tasks::wait_until_player_is_near::DetectionDistance;
+use crate::ai::tasks::wait_until_see_player::WaitUntilSeePlayer;
 use crate::animation::{AnimationClipSpec, AnimationKey, AnimationSet};
 use crate::attack::HurtBoxBundle;
 use crate::enemies::{EnemyCoreBundle, EnemyDying, EnemyHurtBox, EnemySettings, HurtsWhenTouched};
@@ -20,7 +21,7 @@ const ENEMY_HEIGHT_ANCHOR_OFFSET: f32 = 0.01;
 const ENEMY_FOOT_HEIGHT: f32 = 2.0;
 const ENEMY_FOOT_ANCHOR: f32 = -(ENEMY_HEIGHT / 2.) + (ENEMY_FOOT_HEIGHT / 2.);
 const ENEMY_FOOT_RANGE: f32 = 2.0;
-const ATTACK_RANGE: f32 = 55.0;
+const ATTACK_RANGE: f32 = 85.0;
 const ATTACK_SPEED: f32 = 110.0;
 // @todo can we remove these in favor of explosions?
 const BREAK_SECS: f32 = 0.3;
@@ -137,11 +138,14 @@ fn on_spawned(
     });
 
     let attack = ChargeStraight::from(direction);
+    let wait = WaitUntilSeePlayer {
+        max_distance: ATTACK_RANGE,
+        direction: direction.0,
+    };
     let tree = behave! {
         Behave::Forever => {
             Behave::Sequence => {
-                // @todo use raycasting instead of radius; we want the player to be directly underneath
-                Behave::spawn_named("Is player in attack range", WaitUntilPlayerIsNear),
+                Behave::spawn_named("Is player in attack range", wait),
                 Behave::spawn_named("Attack", attack),
             },
         }

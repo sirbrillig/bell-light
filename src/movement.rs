@@ -157,6 +157,29 @@ impl From<&str> for OrthagonalDirection {
     }
 }
 
+impl From<Dir2> for OrthagonalDirection {
+    fn from(value: Dir2) -> Self {
+        match value {
+            Dir2::Y => Self::Up,
+            Dir2::NEG_Y => Self::Down,
+            Dir2::X => Self::Right,
+            Dir2::NEG_X => Self::Left,
+            _ => Self::Right,
+        }
+    }
+}
+
+impl OrthagonalDirection {
+    pub fn to_vec2(&self) -> Dir2 {
+        match self {
+            Self::Up => Dir2::Y,
+            Self::Down => Dir2::NEG_Y,
+            Self::Right => Dir2::X,
+            Self::Left => Dir2::NEG_X,
+        }
+    }
+}
+
 #[derive(Component, Copy, Clone, PartialEq, Eq, Debug, Default)]
 pub enum FacingDirection {
     #[default]
