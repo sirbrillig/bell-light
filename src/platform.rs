@@ -22,6 +22,15 @@ pub enum PlatformDirection {
     Backward,
 }
 
+impl PlatformDirection {
+    pub fn reverse(&self) -> Self {
+        match self {
+            Self::Forward => Self::Backward,
+            Self::Backward => Self::Forward,
+        }
+    }
+}
+
 #[derive(Component, Default)]
 pub struct PlatformPathState {
     pub active: bool,
@@ -30,12 +39,20 @@ pub struct PlatformPathState {
 }
 
 impl PlatformPathState {
-    pub fn go_to_next(&mut self, max: usize) {
+    fn should_reverse(&self, max: usize) -> bool {
         if self.direction == PlatformDirection::Forward && (self.index + 1) >= max {
-            self.direction = PlatformDirection::Backward;
+            return true;
         }
         if self.direction == PlatformDirection::Backward && self.index == 0 {
-            self.direction = PlatformDirection::Forward;
+            return true;
+        }
+        false
+    }
+
+    pub fn go_to_next(&mut self, max: usize) {
+        // @todo pause before reversing direction
+        if self.should_reverse(max) {
+            self.direction = self.direction.reverse();
         }
 
         if self.direction == PlatformDirection::Forward {
