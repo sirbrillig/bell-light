@@ -55,7 +55,7 @@ pub enum GameLayers {
     Environment,
     Platforms,
     Props,
-    Player,
+    PlayerEnvBox,
     PlayerHurtBox,
     Enemies,
     EnemyHitBox,

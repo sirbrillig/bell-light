@@ -67,7 +67,7 @@ fn on_spawned(event: On<Add, Block>, animations: Res<BlockAnimations>, mut comma
                     GameLayers::Environment,
                     GameLayers::Props,
                     GameLayers::Enemies,
-                    GameLayers::Player,
+                    GameLayers::PlayerEnvBox,
                 ],
                 15.5,
                 15.5,

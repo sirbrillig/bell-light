@@ -195,7 +195,7 @@ fn on_spawned(event: On<Add, Platform>, mut commands: Commands) {
                 [
                     GameLayers::Environment,
                     GameLayers::Enemies,
-                    GameLayers::Player,
+                    GameLayers::PlayerEnvBox,
                 ],
                 PLATFORM_SIZE.x,
                 PLATFORM_SIZE.y,

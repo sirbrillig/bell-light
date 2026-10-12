@@ -276,7 +276,7 @@ fn on_enemy_spawned(
                     GameLayers::Environment,
                     GameLayers::Props,
                     GameLayers::Enemies,
-                    GameLayers::Player,
+                    GameLayers::PlayerEnvBox,
                 ],
                 15.5,
                 height.0,

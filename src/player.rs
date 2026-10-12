@@ -81,6 +81,9 @@ impl Plugin for PlayerPlugin {
     }
 }
 
+#[derive(Component)]
+pub struct PlayerEnvBox;
+
 fn on_player_spawned(
     event: On<Add, Player>,
     mut commands: Commands,
@@ -92,8 +95,9 @@ fn on_player_spawned(
     // Add colliders in a child (which we cannot do during init because ldtk plugin does not support it)
     commands.entity(event.entity).with_children(|parent| {
         parent.spawn((
+            PlayerEnvBox,
             EnvColliderBundle::new(
-                GameLayers::Player,
+                GameLayers::PlayerEnvBox,
                 [
                     GameLayers::Environment,
                     GameLayers::Props,
