@@ -146,6 +146,7 @@ fn on_spawned(
         Behave::Forever => {
             Behave::Sequence => {
                 Behave::spawn_named("Is player in attack range", wait),
+                // @todo telegraph falling before actually falling (eg: animated wiggle?)
                 Behave::spawn_named("Attack", attack),
             },
         }
