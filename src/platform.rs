@@ -8,6 +8,7 @@ use bevy_ecs_ldtk::prelude::*;
 
 const PLATFORM_SIZE: Vec2 = Vec2::new(16., 16.);
 const PLATFORM_SPEED: f32 = 30.0;
+const PLATFORM_PAUSE_SECS: f32 = 1.0;
 
 #[derive(Component, Default)]
 pub struct Platform;
@@ -36,6 +37,7 @@ pub struct PlatformPathState {
     pub active: bool,
     pub index: usize,
     pub direction: PlatformDirection,
+    pub reversal_timer: Option<Timer>,
 }
 
 impl PlatformPathState {
@@ -50,9 +52,9 @@ impl PlatformPathState {
     }
 
     pub fn go_to_next(&mut self, max: usize) {
-        // @todo pause before reversing direction
         if self.should_reverse(max) {
             self.direction = self.direction.reverse();
+            self.reversal_timer = Some(Timer::from_seconds(PLATFORM_PAUSE_SECS, TimerMode::Once));
         }
 
         if self.direction == PlatformDirection::Forward {
@@ -242,6 +244,17 @@ fn move_platform(
         if !state.active {
             continue;
         }
+
+        // Pause while reversing direction
+        if let Some(reversal_timer) = &mut state.reversal_timer {
+            reversal_timer.tick(time.delta());
+            if ! reversal_timer.is_finished() {
+                vel.0 = Vec2::ZERO;
+                continue;
+            }
+            state.reversal_timer = None;
+        }
+
         let Some(point) = path.points.get(state.index) else {
             println!(
                 "no next point for index {} with points {:?}",
